@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetailLens - SKU Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  --cream: #faf7f2;
+  --warm-white: #f5f1ea;
+  --paper: #ede8df;
+  --sand: #d9d0c1;
+  --mid: #b5a892;
+  --ink: #1a1714;
+  --ink2: #3d3830;
+  --ink3: #6b6256;
+  --accent: #c8410a;
+  --accent-soft: #fef0e8;
+  --accent2: #1a6b3c;
+  --accent2-soft: #e8f5ed;
+  --blue: #1a3f6b;
+  --blue-soft: #e8eef5;
+  --amber: #c87d0a;
+  --amber-soft: #fef6e3;
+  --border: #e0d9cf;
+  --border2: #cec5b8;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--ink);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  position: sticky; top: 0; z-index: 200;
+}
+.logo-wrap { display: flex; align-items: baseline; gap: 10px; }
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -0.3px;
+}
+.logo-eye { color: var(--accent); font-style: normal; }
+.logo-by {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  color: var(--mid);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.topbar-nav { display: flex; gap: 0; }
+.nav-item {
+  padding: 0 18px;
+  height: 52px;
+  display: flex; align-items: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--mid);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s;
+  letter-spacing: 0.3px;
+}
+.nav-item:hover { color: var(--cream); }
+.nav-item.active { color: var(--cream); border-bottom-color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.sync-status {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--mid);
+  letter-spacing: 0.5px;
+}
+.sync-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent2);
+  animation: blink 2.5s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+.user-chip {
+  background: rgba(255,255,255,0.1);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 11px;
+  color: var(--cream);
+  font-weight: 500;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  background: var(--ink);
+  padding: 22px 32px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.page-header-inner { display: flex; align-items: flex-end; justify-content: space-between; padding-bottom: 20px; }
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--cream);
+  line-height: 1.2;
+}
+.page-subtitle { font-size: 13px; color: var(--mid); margin-top: 4px; font-weight: 300; }
+.header-stats { display: flex; gap: 28px; }
+.hstat { text-align: right; }
+.hstat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--cream);
+  line-height: 1;
+}
+.hstat-val.warn { color: var(--accent); }
+.hstat-val.good { color: #6dd99f; }
+.hstat-label { font-size: 10px; color: var(--mid); margin-top: 3px; font-family: 'IBM Plex Mono', monospace; letter-spacing: .5px; text-transform: uppercase; }
+
+/* ── SUB NAV TABS ── */
+.sub-tabs {
+  background: var(--ink);
+  padding: 0 32px;
+  display: flex;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.sub-tab {
+  padding: 10px 18px;
+  font-size: 11px;
+  color: #6b6256;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+  transition: color .15s;
+}
+.sub-tab:hover { color: var(--mid); }
+.sub-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+
+/* ── MAIN LAYOUT ── */
+.main { display: grid; grid-template-columns: 280px 1fr; min-height: calc(100vh - 140px); }
+
+/* ── LEFT SIDEBAR ── */
+.sidebar {
+  background: var(--warm-white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+.sidebar-section { border-bottom: 1px solid var(--border); }
+.sidebar-label {
+  padding: 14px 20px 8px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--ink3);
+}
+.search-box {
+  margin: 0 16px 12px;
+  position: relative;
+}
+.search-box input {
+  width: 100%;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px 8px 32px;
+  font-size: 12px;
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+.search-box input:focus { border-color: var(--accent); }
+.search-box input::placeholder { color: var(--mid); }
+.search-icon2 { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--mid); font-size: 13px; }
+
+/* ── SKU LIST ── */
+.sku-list { overflow-y: auto; flex: 1; }
+.sku-item {
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .12s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sku-item:hover { background: var(--paper); }
+.sku-item.active { background: white; border-left: 3px solid var(--accent); padding-left: 17px; }
+.sku-row1 { display: flex; align-items: center; justify-content: space-between; }
+.sku-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--blue);
+}
+.sku-status-badge {
+  font-size: 9px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: .5px;
+  font-weight: 500;
+}
+.badge-matched { background: var(--accent2-soft); color: var(--accent2); }
+.badge-review { background: var(--amber-soft); color: var(--amber); }
+.badge-fail { background: var(--accent-soft); color: var(--accent); }
+.badge-pending { background: var(--blue-soft); color: var(--blue); }
+.sku-name { font-size: 12px; color: var(--ink2); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sku-meta { font-size: 10px; color: var(--ink3); display: flex; gap: 8px; }
+.sku-platforms { display: flex; gap: 3px; }
+.plat-dot {
+  width: 14px; height: 14px; border-radius: 3px;
+  font-size: 8px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.pd-amz { background: #e47911; }
+.pd-wmt { background: #0071dc; }
+.pd-tgt { background: #cc0000; }
+.pd-fl  { background: #b4121b; }
+
+/* progress bar in sidebar */
+.sidebar-progress { padding: 14px 20px; }
+.prog-title { font-size: 11px; color: var(--ink2); font-weight: 600; margin-bottom: 10px; }
+.prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.prog-label { font-size: 11px; color: var(--ink3); }
+.prog-count { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink2); }
+.prog-bar-wrap { height: 5px; background: var(--paper); border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
+.prog-bar { height: 100%; border-radius: 3px; }
+
+/* ── CONTENT AREA ── */
+.content { background: var(--cream); padding: 24px 28px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ── SKU HERO ── */
+.sku-hero {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.hero-top {
+  padding: 18px 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-left { display: flex; gap: 16px; align-items: flex-start; }
+.product-thumb {
+  width: 72px; height: 72px;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px;
+  flex-shrink: 0;
+}
+.hero-info { display: flex; flex-direction: column; gap: 5px; }
+.hero-sku {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--blue);
+  font-weight: 500;
+}
+.hero-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.hero-cats { display: flex; gap: 6px; margin-top: 2px; }
+.cat-chip {
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  color: var(--ink3);
+}
+.hero-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.match-score-wrap { text-align: right; }
+.match-score-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--accent2);
+  line-height: 1;
+}
+.match-score-label { font-size: 10px; color: var(--ink3); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .8px; }
+.hero-actions { display: flex; gap: 8px; }
+.btn {
+  padding: 7px 16px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  border: none;
+  transition: opacity .15s;
+  letter-spacing: 0.3px;
+}
+.btn:hover { opacity: .85; }
+.btn-primary { background: var(--accent); color: white; }
+.btn-outline { background: transparent; color: var(--ink2); border: 1px solid var(--border2); }
+.btn-ghost { background: var(--warm-white); color: var(--ink3); }
+
+/* ── PLATFORM MATCH GRID ── */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+.plat-col { border-right: 1px solid var(--border); }
+.plat-col:last-child { border-right: none; }
+.plat-header {
+  padding: 12px 18px 10px;
+  display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--warm-white);
+}
+.plat-name { font-size: 12px; font-weight: 600; color: var(--ink2); }
+.plat-age { font-size: 10px; color: var(--mid); font-family: 'IBM Plex Mono', monospace; margin-left: auto; }
+.plat-body { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.plat-price-main {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.plat-price-delta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  margin-left: 5px;
+  font-weight: 500;
+}
+.delta-neg { color: var(--accent); }
+.delta-pos { color: var(--accent2); }
+.delta-flat { color: var(--mid); }
+.plat-row { display: flex; justify-content: space-between; align-items: center; }
+.plat-field { font-size: 10px; color: var(--ink3); font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .5px; }
+.plat-val { font-size: 11px; color: var(--ink2); font-weight: 500; }
+.plat-val.good { color: var(--accent2); }
+.plat-val.warn { color: var(--amber); }
+.plat-val.bad { color: var(--accent); }
+.plat-sku-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--blue);
+  background: var(--blue-soft);
+  padding: 3px 7px;
+  border-radius: 3px;
+  margin-top: 2px;
+  display: inline-block;
+}
+.match-conf-bar { height: 3px; background: var(--paper); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+.match-conf-fill { height: 100%; border-radius: 2px; }
+.conf-97 { width: 97%; background: var(--accent2); }
+.conf-94 { width: 94%; background: var(--accent2); }
+.conf-91 { width: 91%; background: var(--accent2); }
+.conf-78 { width: 78%; background: var(--amber); }
+
+/* ── TWO COLUMN SECTION ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+
+/* ── CARD ── */
+.card2 {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card2-header {
+  padding: 13px 18px 11px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card2-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+.card2-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.tag-live2 { background: var(--accent2-soft); color: var(--accent2); }
+.tag-vision { background: var(--blue-soft); color: var(--blue); }
+.tag-data { background: var(--amber-soft); color: var(--amber); }
+
+/* ── VISUAL VALIDATION PANEL ── */
+.vis-val-grid { padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.vis-item {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.vis-platform-label {
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .3px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.vis-amz { background: #fff8f0; color: #e47911; border-bottom: 1px solid #fde8c8; }
+.vis-wmt { background: #f0f6ff; color: #0071dc; border-bottom: 1px solid #c8def8; }
+.vis-tgt { background: #fff0f0; color: #cc0000; border-bottom: 1px solid #f8c8c8; }
+.vis-fl  { background: #fff0f1; color: #b4121b; border-bottom: 1px solid #f5c8cb; }
+.vis-thumb {
+  height: 74px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px;
+  background: var(--warm-white);
+}
+.vis-check {
+  padding: 7px 10px;
+  font-size: 10px;
+  display: flex; align-items: center; gap: 5px;
+  font-weight: 500;
+}
+.vis-ok { color: var(--accent2); }
+.vis-warn2 { color: var(--amber); }
+.vis-title-check { padding: 8px 10px; font-size: 10px; color: var(--ink3); border-top: 1px solid var(--border); line-height: 1.4; }
+.vis-title-check span { color: var(--amber); font-weight: 600; }
+
+/* ── INTELLIGENCE FEED ── */
+.feed-list { display: flex; flex-direction: column; }
+.feed-item {
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; gap: 10px; align-items: flex-start;
+  animation: slideIn .35s ease forwards;
+  opacity: 0;
+}
+.feed-item:last-child { border-bottom: none; }
+@keyframes slideIn { from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:translateY(0)} }
+.feed-item:nth-child(1){animation-delay:.05s}
+.feed-item:nth-child(2){animation-delay:.15s}
+.feed-item:nth-child(3){animation-delay:.25s}
+.feed-item:nth-child(4){animation-delay:.35s}
+.feed-item:nth-child(5){animation-delay:.45s}
+.feed-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+.icon-price { background: var(--accent-soft); }
+.icon-match { background: var(--accent2-soft); }
+.icon-stock { background: var(--amber-soft); }
+.icon-vis { background: var(--blue-soft); }
+.feed-body { flex: 1; }
+.feed-title { font-size: 12px; font-weight: 600; color: var(--ink); }
+.feed-sub { font-size: 11px; color: var(--ink3); margin-top: 1px; }
+.feed-time { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--mid); margin-top: 2px; }
+
+/* ── DATA EXPORT / STRUCTURED OUTPUT ── */
+.export-grid { padding: 14px 18px; display: flex; flex-direction: column; gap: 8px; }
+.export-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.export-row:hover { background: var(--paper); border-color: var(--border2); }
+.export-label { font-size: 12px; color: var(--ink2); font-weight: 500; display: flex; gap: 8px; align-items: center; }
+.export-ext {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  letter-spacing: .5px;
+}
+.export-meta { font-size: 10px; color: var(--mid); font-family: 'IBM Plex Mono', monospace; }
+
+/* ── VALIDATION SESSION ── */
+.session-grid { padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; }
+.session-stat { display: flex; justify-content: space-between; align-items: baseline; }
+.session-label { font-size: 12px; color: var(--ink3); }
+.session-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+.session-bar-wrap { height: 6px; background: var(--paper); border-radius: 3px; overflow: hidden; margin-top: 3px; margin-bottom: 6px; }
+.session-bar { height: 100%; border-radius: 3px; }
+.sb-matched { background: var(--accent2); }
+.sb-review { background: var(--amber); }
+.sb-fail { background: var(--accent); }
+.sb-pending { background: var(--blue); opacity: .4; }
+.session-divider { height: 1px; background: var(--border); }
+.session-note { font-size: 11px; color: var(--ink3); line-height: 1.5; }
+
+/* ── BOTTOM MODULE ROW ── */
+.module-strip {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.mod-tile {
+  padding: 16px 18px;
+  border-right: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .15s;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.mod-tile:last-child { border-right: none; }
+.mod-tile:hover { background: var(--warm-white); }
+.mod-icon2 { font-size: 18px; }
+.mod-title2 { font-size: 12px; font-weight: 600; color: var(--ink); }
+.mod-desc2 { font-size: 11px; color: var(--ink3); line-height: 1.4; }
+.mod-status {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  width: fit-content;
+  letter-spacing: .5px;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* ── SCRAPE STATUS TABLE ── */
+.scrape-table { width: 100%; border-collapse: collapse; }
+.scrape-table th {
+  padding: 8px 18px;
+  text-align: left;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink3);
+  background: var(--warm-white);
+  border-bottom: 1px solid var(--border);
+}
+.scrape-table td {
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--ink2);
+}
+.scrape-table tr:last-child td { border-bottom: none; }
+.scrape-table tr:hover td { background: var(--warm-white); }
+.status-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 3px;
+  font-size: 10px; font-weight: 600;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .4px;
+}
+.sp-live { background: var(--accent2-soft); color: var(--accent2); }
+.sp-lag  { background: var(--amber-soft); color: var(--amber); }
+.sp-fail { background: var(--accent-soft); color: var(--accent); }
+.mono { font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo-wrap">
+    <div class="logo">Retail<span class="logo-eye">Lens</span></div>
+    <div class="logo-by">by GoAGI</div>
+  </div>
+  <div class="topbar-nav">
+    <div class="nav-item active">SKU Matching</div>
+    <div class="nav-item">Price Intel</div>
+    <div class="nav-item">Visual Validation</div>
+    <div class="nav-item">Catalog Enrichment</div>
+    <div class="nav-item">Export</div>
+  </div>
+  <div class="topbar-right">
+    <div class="sync-status"><div class="sync-dot"></div>SCRAPERS LIVE</div>
+    <div class="user-chip">Walmart · Pilot</div>
+  </div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div>
+      <div class="page-title">SKU Intelligence Dashboard</div>
+      <div class="page-subtitle">Validation Session 01 &nbsp;·&nbsp; 10 Sample SKUs from Walmart &amp; Amazon</div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat">
+        <div class="hstat-val good">7</div>
+        <div class="hstat-label">Matched</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val warn">2</div>
+        <div class="hstat-label">In Review</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val warn">1</div>
+        <div class="hstat-label">Failed</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-val">94%</div>
+        <div class="hstat-label">Avg Confidence</div>
+      </div>
+    </div>
+  </div>
+  <div class="sub-tabs">
+    <div class="sub-tab active">Matched Pairs (5)</div>
+    <div class="sub-tab">Unmatched Pairs (5)</div>
+    <div class="sub-tab">Ground Truth Labels</div>
+    <div class="sub-tab">Raw Scrape Output</div>
+    <div class="sub-tab">Structured Dataset</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">10 Sample SKUs</div>
+      <div class="search-box">
+        <span class="search-icon2">⌕</span>
+        <input type="text" placeholder="Search by SKU or product name..." />
+      </div>
+    </div>
+
+    <div class="sku-list">
+      <div class="sku-item active">
+        <div class="sku-row1">
+          <span class="sku-id">SNK-3341</span>
+          <span class="sku-status-badge badge-matched">MATCHED</span>
+        </div>
+        <div class="sku-name">Nike Air Force 1 Low White</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-tgt">T</div>
+          </div>
+          <span>97% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">CTN-2201</span>
+          <span class="sku-status-badge badge-matched">MATCHED</span>
+        </div>
+        <div class="sku-name">Hanes Crew Neck T-Shirt 3-Pack</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+          </div>
+          <span>94% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">GRC-0047</span>
+          <span class="sku-status-badge badge-matched">MATCHED</span>
+        </div>
+        <div class="sku-name">Tide Pods Laundry Detergent 42ct</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-tgt">T</div>
+          </div>
+          <span>98% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">ELC-8812</span>
+          <span class="sku-status-badge badge-matched">MATCHED</span>
+        </div>
+        <div class="sku-name">Anker 65W USB-C Charger Nano</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+          </div>
+          <span>91% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">TOY-5523</span>
+          <span class="sku-status-badge badge-matched">MATCHED</span>
+        </div>
+        <div class="sku-name">LEGO City Police Station 60316</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-tgt">T</div>
+          </div>
+          <span>99% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">FNB-0192</span>
+          <span class="sku-status-badge badge-review">REVIEW</span>
+        </div>
+        <div class="sku-name">Great Value Whole Milk 1 Gallon</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-tgt">T</div>
+          </div>
+          <span>78% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">HMW-3390</span>
+          <span class="sku-status-badge badge-review">REVIEW</span>
+        </div>
+        <div class="sku-name">Mainstays 6-Shelf Bookcase Espresso</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-amz">A</div>
+          </div>
+          <span>72% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">APR-7741</span>
+          <span class="sku-status-badge badge-fail">FAILED</span>
+        </div>
+        <div class="sku-name">Generic 3P Baseball Cap Unbranded</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+          </div>
+          <span>41% confidence</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">SPT-1104</span>
+          <span class="sku-status-badge badge-pending">PENDING</span>
+        </div>
+        <div class="sku-name">Wilson Evolution Basketball 29.5"</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+          </div>
+          <span>Queued</span>
+        </div>
+      </div>
+
+      <div class="sku-item">
+        <div class="sku-row1">
+          <span class="sku-id">ELC-5501</span>
+          <span class="sku-status-badge badge-pending">PENDING</span>
+        </div>
+        <div class="sku-name">Samsung 65" QLED 4K TV QN65Q80C</div>
+        <div class="sku-meta">
+          <div class="sku-platforms">
+            <div class="plat-dot pd-amz">A</div>
+            <div class="plat-dot pd-wmt">W</div>
+            <div class="plat-dot pd-tgt">T</div>
+          </div>
+          <span>Queued</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION PROGRESS -->
+    <div class="sidebar-progress">
+      <div class="prog-title">Validation Progress</div>
+      <div class="prog-row"><span class="prog-label">Matched</span><span class="prog-count">5 / 10</span></div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:50%;background:var(--accent2)"></div></div>
+      <div class="prog-row"><span class="prog-label">In Review</span><span class="prog-count">2 / 10</span></div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:20%;background:var(--amber)"></div></div>
+      <div class="prog-row"><span class="prog-label">Failed</span><span class="prog-count">1 / 10</span></div>
+      <div class="prog-bar-wrap"><div class="prog-bar" style="width:10%;background:var(--accent)"></div></div>
+      <div class="prog-row"><span class="prog-label">Pending</span><span class="prog-count">2 / 10</span></div>
+      <div class="prog-bar-wrap" style="margin-bottom:0"><div class="prog-bar" style="width:20%;background:var(--blue);opacity:.5"></div></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- SKU HERO -->
+    <div class="sku-hero">
+      <div class="hero-top">
+        <div class="hero-left">
+          <div class="product-thumb">👟</div>
+          <div class="hero-info">
+            <div class="hero-sku">SKU: SNK-3341 &nbsp;·&nbsp; UPC: 194501938278 &nbsp;·&nbsp; Category: Footwear &gt; Athletic</div>
+            <div class="hero-name">Nike Air Force 1 Low White</div>
+            <div class="hero-cats">
+              <span class="cat-chip">Men's Shoes</span>
+              <span class="cat-chip">Size US 10</span>
+              <span class="cat-chip">Leather Upper</span>
+              <span class="cat-chip">Branded</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-right">
+          <div class="match-score-wrap">
+            <div class="match-score-num">97%</div>
+            <div class="match-score-label">Match Confidence</div>
+          </div>
+          <div class="hero-actions">
+            <button class="btn btn-outline">Flag for Review</button>
+            <button class="btn btn-ghost">Reject Match</button>
+            <button class="btn btn-primary">Confirm Match ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PLATFORM MATCH GRID -->
+      <div class="platform-grid">
+        <div class="plat-col">
+          <div class="plat-header">
+            <div class="plat-dot pd-amz" style="width:18px;height:18px;font-size:10px">A</div>
+            <span class="plat-name">Amazon</span>
+            <span class="plat-age">1h ago</span>
+          </div>
+          <div class="plat-body">
+            <div>
+              <div class="plat-price-main">$16.99 <span class="plat-price-delta delta-neg">▼ -$4.00</span></div>
+              <div class="match-conf-bar"><div class="match-conf-fill conf-97"></div></div>
+            </div>
+            <div class="plat-sku-id">ASIN: B09XR5K2VP</div>
+            <div class="plat-row"><span class="plat-field">Title match</span><span class="plat-val good">97%</span></div>
+            <div class="plat-row"><span class="plat-field">Image match</span><span class="plat-val good">Verified ✓</span></div>
+            <div class="plat-row"><span class="plat-field">Rating</span><span class="plat-val">★ 4.3 (2,841)</span></div>
+            <div class="plat-row"><span class="plat-field">Delivery</span><span class="plat-val good">Same-day</span></div>
+            <div class="plat-row"><span class="plat-field">Seller</span><span class="plat-val">Amazon.com</span></div>
+          </div>
+        </div>
+
+        <div class="plat-col">
+          <div class="plat-header">
+            <div class="plat-dot pd-wmt" style="width:18px;height:18px;font-size:10px">W</div>
+            <span class="plat-name">Walmart</span>
+            <span class="plat-age">45 min ago</span>
+          </div>
+          <div class="plat-body">
+            <div>
+              <div class="plat-price-main">$15.99 <span class="plat-price-delta delta-neg">▼ -$5.00</span></div>
+              <div class="match-conf-bar"><div class="match-conf-fill conf-94"></div></div>
+            </div>
+            <div class="plat-sku-id">WMT: 576294031</div>
+            <div class="plat-row"><span class="plat-field">Title match</span><span class="plat-val good">94%</span></div>
+            <div class="plat-row"><span class="plat-field">Image match</span><span class="plat-val good">Verified ✓</span></div>
+            <div class="plat-row"><span class="plat-field">Rating</span><span class="plat-val">★ 3.8 (504)</span></div>
+            <div class="plat-row"><span class="plat-field">Delivery</span><span class="plat-val warn">Next-day</span></div>
+            <div class="plat-row"><span class="plat-field">Seller</span><span class="plat-val">Walmart.com</span></div>
+          </div>
+        </div>
+
+        <div class="plat-col">
+          <div class="plat-header">
+            <div class="plat-dot pd-tgt" style="width:18px;height:18px;font-size:10px">T</div>
+            <span class="plat-name">Target</span>
+            <span class="plat-age">2h ago</span>
+          </div>
+          <div class="plat-body">
+            <div>
+              <div class="plat-price-main">$22.99 <span class="plat-price-delta delta-pos">▲ +$2.00</span></div>
+              <div class="match-conf-bar"><div class="match-conf-fill conf-91"></div></div>
+            </div>
+            <div class="plat-sku-id">TGT: TCIN-89241704</div>
+            <div class="plat-row"><span class="plat-field">Title match</span><span class="plat-val good">91%</span></div>
+            <div class="plat-row"><span class="plat-field">Image match</span><span class="plat-val good">Verified ✓</span></div>
+            <div class="plat-row"><span class="plat-field">Rating</span><span class="plat-val">★ 4.1 (1,102)</span></div>
+            <div class="plat-row"><span class="plat-field">Delivery</span><span class="plat-val warn">2-day ship</span></div>
+            <div class="plat-row"><span class="plat-field">Seller</span><span class="plat-val">Target.com</span></div>
+          </div>
+        </div>
+
+        <div class="plat-col">
+          <div class="plat-header">
+            <div class="plat-dot pd-fl" style="width:18px;height:18px;font-size:10px">F</div>
+            <span class="plat-name">Foot Locker</span>
+            <span class="plat-age">3h ago</span>
+          </div>
+          <div class="plat-body">
+            <div>
+              <div class="plat-price-main">$17.99 <span class="plat-price-delta delta-neg">▼ -$3.00</span></div>
+              <div class="match-conf-bar"><div class="match-conf-fill conf-78"></div></div>
+            </div>
+            <div class="plat-sku-id">FL-SKU: 38484820</div>
+            <div class="plat-row"><span class="plat-field">Title match</span><span class="plat-val warn">78%</span></div>
+            <div class="plat-row"><span class="plat-field">Image match</span><span class="plat-val warn">Partial ⚠</span></div>
+            <div class="plat-row"><span class="plat-field">Rating</span><span class="plat-val">★ 4.2 (387)</span></div>
+            <div class="plat-row"><span class="plat-field">Delivery</span><span class="plat-val bad">5-7 days</span></div>
+            <div class="plat-row"><span class="plat-field">Seller</span><span class="plat-val">3P Seller</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="two-col">
+
+      <!-- VISUAL VALIDATION -->
+      <div class="card2">
+        <div class="card2-header">
+          <span class="card2-title">Visual Validation Layer</span>
+          <span class="card2-tag tag-vision">COMPUTER VISION</span>
+        </div>
+        <div class="vis-val-grid">
+          <div class="vis-item">
+            <div class="vis-platform-label vis-amz">
+              <span>Amazon</span><span>ASIN B09XR5K2VP</span>
+            </div>
+            <div class="vis-thumb">👟</div>
+            <div class="vis-check vis-ok">✓ Image matches title</div>
+            <div class="vis-title-check">Title: "Nike Air Force 1 Low '07 Men's Shoe"<br>Image: White low-top sneaker — consistent</div>
+          </div>
+          <div class="vis-item">
+            <div class="vis-platform-label vis-wmt">
+              <span>Walmart</span><span>SKU 576294031</span>
+            </div>
+            <div class="vis-thumb">👟</div>
+            <div class="vis-check vis-ok">✓ Image matches title</div>
+            <div class="vis-title-check">Title: "Nike Air Force 1 White Men's 10"<br>Image: White low-top sneaker — consistent</div>
+          </div>
+          <div class="vis-item">
+            <div class="vis-platform-label vis-tgt">
+              <span>Target</span><span>TCIN 89241704</span>
+            </div>
+            <div class="vis-thumb">👟</div>
+            <div class="vis-check vis-ok">✓ Image matches title</div>
+            <div class="vis-title-check">Title: "Nike Air Force 1 '07 Sneaker"<br>Image: White low-top sneaker — consistent</div>
+          </div>
+          <div class="vis-item" style="border-color: var(--amber)">
+            <div class="vis-platform-label vis-fl">
+              <span>Foot Locker</span><span>FL 38484820</span>
+            </div>
+            <div class="vis-thumb" style="background:#fff8f0">👟</div>
+            <div class="vis-check vis-warn2">⚠ Possible colorway mismatch</div>
+            <div class="vis-title-check">Title: "Nike AF1 Low White/Black"<br>Image: <span>Off-white sole detected — review needed</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTELLIGENCE FEED + EXPORT -->
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="card2">
+          <div class="card2-header">
+            <span class="card2-title">Live Intelligence Feed</span>
+            <span class="card2-tag tag-live2">LIVE</span>
+          </div>
+          <div class="feed-list">
+            <div class="feed-item">
+              <div class="feed-icon icon-price">💰</div>
+              <div class="feed-body">
+                <div class="feed-title">Amazon dropped $4.00 below your price</div>
+                <div class="feed-sub">SNK-3341 · $16.99 vs your $20.99</div>
+                <div class="feed-time">1h ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-icon icon-vis">🔍</div>
+              <div class="feed-body">
+                <div class="feed-title">Visual mismatch flagged - Foot Locker</div>
+                <div class="feed-sub">FL-38484820 · colorway inconsistency detected</div>
+                <div class="feed-time">2h ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-icon icon-match">✓</div>
+              <div class="feed-body">
+                <div class="feed-title">GRC-0047 confirmed match across 3 platforms</div>
+                <div class="feed-sub">Tide Pods 42ct · 98% confidence · ground truth verified</div>
+                <div class="feed-time">3h ago</div>
+              </div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-icon icon-stock">📦</div>
+              <div class="feed-body">
+                <div class="feed-title">Stock depletion signal · Amazon FC Chicago</div>
+                <div class="feed-sub">SNK-3341 · restock projected Mon/Thu</div>
+                <div class="feed-time">5h ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STRUCTURED EXPORT -->
+        <div class="card2">
+          <div class="card2-header">
+            <span class="card2-title">Structured Dataset Export</span>
+            <span class="card2-tag tag-data">READY</span>
+          </div>
+          <div class="export-grid">
+            <div class="export-row">
+              <span class="export-label"><span class="export-ext">JSON</span>Matched SKU pairs with confidence scores</span>
+              <span class="export-meta">10 records · 28KB</span>
+            </div>
+            <div class="export-row">
+              <span class="export-label"><span class="export-ext">CSV</span>Price intel across platforms (SNK-3341)</span>
+              <span class="export-meta">4 platforms · 15min cadence</span>
+            </div>
+            <div class="export-row">
+              <span class="export-label"><span class="export-ext">JSON</span>Ground truth labels · Walmart input/output</span>
+              <span class="export-meta">5 matched + 5 unmatched pairs</span>
+            </div>
+            <div class="export-row">
+              <span class="export-label"><span class="export-ext">CSV</span>Visual validation flags summary</span>
+              <span class="export-meta">1 flag · 4 verified · 5 pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ROW 3: SCRAPE STATUS + SESSION STATS -->
+    <div class="two-col">
+      <div class="card2">
+        <div class="card2-header">
+          <span class="card2-title">Scraper Status · Active Platforms</span>
+          <span class="card2-tag tag-live2">LIVE</span>
+        </div>
+        <table class="scrape-table">
+          <thead>
+            <tr>
+              <th>Platform</th><th>Last Scrape</th><th>SKUs Indexed</th><th>Refresh</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:600">Amazon</td>
+              <td class="mono">1h ago</td>
+              <td class="mono">10 / 10</td>
+              <td class="mono">15 min</td>
+              <td><span class="status-pill sp-live">● LIVE</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">Walmart</td>
+              <td class="mono">45 min ago</td>
+              <td class="mono">10 / 10</td>
+              <td class="mono">15 min</td>
+              <td><span class="status-pill sp-live">● LIVE</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">Target</td>
+              <td class="mono">2h ago</td>
+              <td class="mono">8 / 10</td>
+              <td class="mono">30 min</td>
+              <td><span class="status-pill sp-lag">⚠ LAGGING</span></td>
+            </tr>
+            <tr>
+              <td style="font-weight:600">Foot Locker</td>
+              <td class="mono">3h ago</td>
+              <td class="mono">6 / 10</td>
+              <td class="mono">1 hr</td>
+              <td><span class="status-pill sp-lag">⚠ LAGGING</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card2">
+        <div class="card2-header">
+          <span class="card2-title">Validation Session Stats</span>
+          <span class="card2-tag tag-data">SESSION 01</span>
+        </div>
+        <div class="session-grid">
+          <div>
+            <div class="session-stat"><span class="session-label">Confirmed Matches</span><span class="session-num" style="color:var(--accent2)">5</span></div>
+            <div class="session-bar-wrap"><div class="session-bar sb-matched" style="width:50%"></div></div>
+          </div>
+          <div>
+            <div class="session-stat"><span class="session-label">Flagged for Review</span><span class="session-num" style="color:var(--amber)">2</span></div>
+            <div class="session-bar-wrap"><div class="session-bar sb-review" style="width:20%"></div></div>
+          </div>
+          <div>
+            <div class="session-stat"><span class="session-label">Failed Matches</span><span class="session-num" style="color:var(--accent)">1</span></div>
+            <div class="session-bar-wrap"><div class="session-bar sb-fail" style="width:10%"></div></div>
+          </div>
+          <div class="session-divider"></div>
+          <div class="session-note">Failure: APR-7741 is a non-branded 3P item with no UPC, no shared title tokens, and 4 different seller images. Unresolvable without visual enrichment pipeline.</div>
+          <div class="session-note" style="color:var(--amber)">Review: FNB-0192 and HMW-3390 have regional SKU variants that created false negatives. Ground truth from Walmart needed to confirm.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURE MODULES -->
+    <div class="module-strip">
+      <div class="mod-tile">
+        <div class="mod-icon2">🕷️</div>
+        <div class="mod-title2">Agentic Scraper</div>
+        <div class="mod-desc2">Bypasses naming variations and anti-scrape barriers across 20+ platforms daily.</div>
+        <span class="mod-status" style="background:var(--accent2-soft);color:var(--accent2)">LIVE</span>
+      </div>
+      <div class="mod-tile">
+        <div class="mod-icon2">🔗</div>
+        <div class="mod-title2">3P SKU Matching</div>
+        <div class="mod-desc2">Identifies same physical product across thousands of rebranded 3P seller listings.</div>
+        <span class="mod-status" style="background:var(--accent2-soft);color:var(--accent2)">LIVE</span>
+      </div>
+      <div class="mod-tile">
+        <div class="mod-icon2">👁️</div>
+        <div class="mod-title2">Visual Validator</div>
+        <div class="mod-desc2">Cross-checks scraped text against product images to flag title/image mismatches.</div>
+        <span class="mod-status" style="background:var(--blue-soft);color:var(--blue)">BETA</span>
+      </div>
+      <div class="mod-tile">
+        <div class="mod-icon2">📊</div>
+        <div class="mod-title2">Structured Output</div>
+        <div class="mod-desc2">Retail-schema JSON/CSV with pricing, ratings, delivery, and confidence scores.</div>
+        <span class="mod-status" style="background:var(--amber-soft);color:var(--amber)">PILOT</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
