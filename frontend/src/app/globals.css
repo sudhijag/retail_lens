@@ -1,26 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cream: #faf7f2;
+  --warm-white: #f5f1ea;
+  --paper: #ede8df;
+  --sand: #d9d0c1;
+  --mid: #b5a892;
+  --ink: #1a1714;
+  --ink2: #3d3830;
+  --ink3: #6b6256;
+  --accent: #c8410a;
+  --accent-soft: #fef0e8;
+  --accent2: #1a6b3c;
+  --accent2-soft: #e8f5ed;
+  --blue: #1a3f6b;
+  --blue-soft: #e8eef5;
+  --amber: #c87d0a;
+  --amber-soft: #fef6e3;
+  --border: #e0d9cf;
+  --border2: #cec5b8;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html, body { height: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+.blink { animation: blink 2.5s ease-in-out infinite; }
+
+@keyframes slideIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.slide-in { animation: slideIn .35s ease both; }
+
+@keyframes flashGreen { 0%{background:#e8f5ed} 100%{background:transparent} }
+@keyframes flashRed   { 0%{background:#fef0e8} 100%{background:transparent} }
+.flash-green { animation: flashGreen 1s ease; }
+.flash-red   { animation: flashRed 1s ease; }
+
+.recharts-tooltip-wrapper .recharts-default-tooltip {
+  background: var(--ink) !important;
+  border: none !important;
+  border-radius: 6px !important;
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  color: var(--cream) !important;
 }
