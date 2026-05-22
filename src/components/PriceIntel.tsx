@@ -357,6 +357,9 @@ function PricePositionPanel({ matches, yourPrice }: { matches: FlatMatch[]; your
   const livePrices = matches.map(m => m.product.price).filter((p): p is number => p != null)
   const usingFallback = livePrices.length === 0
   const prices = (usingFallback ? buildFallbackPrices(yourPrice) : livePrices).sort((a, b) => a - b)
+  const markers = usingFallback
+    ? prices.map((price, i) => ({ price, i, color: 'var(--blue)' }))
+    : matches.map((match, i) => ({ price: match.product.price as number, i, color: match.color }))
   if (!prices.length) return null
 
   const low = prices[0]
@@ -398,12 +401,12 @@ function PricePositionPanel({ matches, yourPrice }: { matches: FlatMatch[]; your
       <div style={{ padding: '18px 20px 20px' }}>
         <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', display: 'block' }}>
           <line x1={left} x2={right} y1={trackY} y2={trackY} stroke="var(--border2)" strokeWidth="8" strokeLinecap="round" />
-          {(usingFallback ? prices.map((price, i) => ({ price, i })) : matches.map((match, i) => ({ price: match.product.price as number, i, color: match.color }))).map(item => {
+          {markers.map(item => {
             const x = scale(item.price)
             return (
               <g key={`${item.price}-${item.i}`}>
-                <line x1={x} x2={x} y1={trackY - 16} y2={trackY + 16} stroke={usingFallback ? 'var(--blue)' : item.color} strokeWidth="2" opacity="0.85" />
-                <circle cx={x} cy={trackY} r="4" fill={usingFallback ? 'var(--blue)' : item.color} />
+                <line x1={x} x2={x} y1={trackY - 16} y2={trackY + 16} stroke={item.color} strokeWidth="2" opacity="0.85" />
+                <circle cx={x} cy={trackY} r="4" fill={item.color} />
               </g>
             )
           })}
