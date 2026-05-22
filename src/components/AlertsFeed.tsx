@@ -6,6 +6,7 @@ import {
 import { INITIAL_ALERTS, PLATFORMS } from '../lib/data'
 import type { Alert, AlertType } from '../lib/types'
 
+// a
 const TYPE_CONFIG: Record<AlertType, { icon: React.ReactNode; label: string; color: string; bg: string }> = {
   price_drop:     { icon: <TrendingDown size={13} />, label: 'Price Drop',    color: '#c8410a', bg: '#fef0e8' },
   promo_detected: { icon: <Tag size={13} />,          label: 'Promo',         color: '#c87d0a', bg: '#fef6e3' },
