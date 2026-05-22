@@ -14,14 +14,14 @@ const AlertCreator     = dynamic(() => import('../components/AlertCreator'),    
 const ProductMatcher   = dynamic(() => import('../components/ProductMatcher'),   { ssr: false })
 const ImageScanner     = dynamic(() => import('../components/ImageScanner'),     { ssr: false })
 
-type Tab = 'price' | 'scan' | 'news' | 'matcher' | 'alerts'
+type Tab = 'product' | 'price' | 'scan' | 'news' | 'alerts'
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: 'price',   label: 'Price Intel',  icon: <BarChart2 size={13} /> },
-  { id: 'scan',    label: 'Scan',         icon: <ScanLine size={13} />  },
-  { id: 'news',    label: 'Market',       icon: <Brain size={13} />     },
-  { id: 'matcher', label: 'Matcher',      icon: <GitMerge size={13} />  },
-  { id: 'alerts',  label: 'Alerts',       icon: <Bell size={13} />      },
+  { id: 'product', label: 'Product',  icon: <GitMerge size={13} />  },
+  { id: 'price',   label: 'Category', icon: <BarChart2 size={13} /> },
+  { id: 'scan',    label: 'Scan',     icon: <ScanLine size={13} />  },
+  { id: 'news',    label: 'Feed',     icon: <Brain size={13} />     },
+  { id: 'alerts',  label: 'Alerts',   icon: <Bell size={13} />      },
 ]
 
 function useLivePrices() {
@@ -51,7 +51,7 @@ function useLivePrices() {
 const criticalCount = INITIAL_ALERTS.filter(a => a.severity === 'critical' || a.isNew).length
 
 export default function RetailLensApp() {
-  const [activeTab, setActiveTab] = useState<Tab>('price')
+  const [activeTab, setActiveTab] = useState<Tab>('product')
   const [selectedProductId, setSelectedProductId] = useState(PRODUCTS[0].id)
   const [searchQuery, setSearchQuery] = useState('')
   const [syncLabel, setSyncLabel] = useState('just now')
@@ -413,10 +413,10 @@ export default function RetailLensApp() {
             </>
           )}
 
+          {activeTab === 'product'  && <ProductMatcher />}
           {activeTab === 'scan'    && <ImageScanner />}
           {activeTab === 'news'    && <NewsIntelligence />}
           {activeTab === 'alerts'  && <AlertsFeed />}
-          {activeTab === 'matcher' && <ProductMatcher />}
         </div>
       </div>
 

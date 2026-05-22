@@ -9,6 +9,7 @@ export interface IndustryLeader {
   weeks: number         // how long this trend has been running
   momentum: MomentumType
   trendHistory: number[] // 8-week demand index (0–100), oldest → newest
+  reviewCount: number    // approximate reviews on leading platform listing
   isYourProduct?: boolean
   yourNote?: string      // displayed when isYourProduct is true
 }
@@ -51,27 +52,32 @@ const INTEL: Record<string, CategoryIntel> = {
         rank: 1, platform: 'AMZ', name: 'Bold black thick-rim acetate frames',
         priceRange: '$18–32', velocityPct: 67, weeks: 12, momentum: 'surging',
         trendHistory: [20, 26, 32, 40, 48, 56, 62, 67],
+        reviewCount: 2400,
       },
       {
         rank: 2, platform: 'AMZ', name: 'Clear oval acetate frames',
         priceRange: '$16–24', velocityPct: 28, weeks: 6, momentum: 'growing',
         trendHistory: [14, 16, 18, 21, 23, 25, 27, 28],
+        reviewCount: 1180,
         isYourProduct: true, yourNote: 'Your SKU (CLR-GLSS-001) is in this segment',
       },
       {
         rank: 3, platform: 'AMZ', name: 'Geometric wire-rim frames',
         priceRange: '$12–18', velocityPct: 34, weeks: 4, momentum: 'emerging',
         trendHistory: [8, 10, 13, 17, 22, 27, 31, 34],
+        reviewCount: 560,
       },
       {
         rank: 4, platform: 'TGT', name: 'Blue-light blocking lenses',
         priceRange: '$18–28', velocityPct: 19, weeks: 8, momentum: 'steady',
         trendHistory: [14, 15, 15, 16, 16, 17, 18, 19],
+        reviewCount: 840,
       },
       {
         rank: 5, platform: 'WMT', name: 'Oversized tortoiseshell frames',
         priceRange: '$12–22', velocityPct: -8, weeks: 3, momentum: 'declining',
         trendHistory: [38, 34, 30, 25, 22, 18, 14, 10],
+        reviewCount: 320,
       },
     ],
     decisions: [
@@ -108,27 +114,32 @@ const INTEL: Record<string, CategoryIntel> = {
         rank: 1, platform: 'WMT', name: 'Multi-pack crewneck basics (3–6pk)',
         priceRange: '$14–26', velocityPct: 41, weeks: 7, momentum: 'surging',
         trendHistory: [14, 18, 23, 28, 33, 37, 39, 41],
+        reviewCount: 3800,
       },
       {
         rank: 2, platform: 'AMZ', name: 'Premium heavyweight cotton single',
         priceRange: '$18–26', velocityPct: 28, weeks: 5, momentum: 'growing',
         trendHistory: [14, 17, 19, 21, 24, 25, 27, 28],
+        reviewCount: 2100,
       },
       {
         rank: 3, platform: 'TGT', name: 'Performance / moisture-wicking crew',
         priceRange: '$16–22', velocityPct: 22, weeks: 6, momentum: 'growing',
         trendHistory: [12, 13, 15, 16, 18, 19, 21, 22],
+        reviewCount: 1650,
       },
       {
         rank: 4, platform: 'AMZ', name: 'Basic single crew-neck tee',
         priceRange: '$9–16', velocityPct: -3, weeks: 3, momentum: 'plateauing',
         trendHistory: [12, 12, 11, 10, 10, 9, 8, 7],
+        reviewCount: 1020,
         isYourProduct: true, yourNote: 'Your SKU (WHT-TEE-3340) is in this segment',
       },
       {
         rank: 5, platform: 'AMZ', name: 'Ribbed slim-fit premium crew',
         priceRange: '$22–32', velocityPct: 15, weeks: 4, momentum: 'steady',
         trendHistory: [9, 10, 11, 11, 12, 13, 14, 15],
+        reviewCount: 580,
       },
     ],
     decisions: [
@@ -165,27 +176,32 @@ const INTEL: Record<string, CategoryIntel> = {
         rank: 1, platform: 'AMZ', name: 'Clean white canvas low-top',
         priceRange: '$24–38', velocityPct: 38, weeks: 5, momentum: 'growing',
         trendHistory: [18, 22, 26, 29, 32, 34, 37, 38],
+        reviewCount: 2950,
         isYourProduct: true, yourNote: 'Your SKU (WHT-SNK-2201) is the category leader here',
       },
       {
         rank: 2, platform: 'TGT', name: 'Platform / thick-sole canvas sneaker',
         priceRange: '$38–52', velocityPct: 29, weeks: 4, momentum: 'emerging',
         trendHistory: [12, 15, 18, 22, 25, 27, 28, 29],
+        reviewCount: 880,
       },
       {
         rank: 3, platform: 'WMT', name: 'Slip-on canvas sneaker',
         priceRange: '$18–28', velocityPct: 24, weeks: 6, momentum: 'steady',
         trendHistory: [14, 16, 17, 19, 20, 22, 23, 24],
+        reviewCount: 1640,
       },
       {
         rank: 4, platform: 'AMZ', name: 'High-top canvas sneaker',
         priceRange: '$32–48', velocityPct: 12, weeks: 4, momentum: 'steady',
         trendHistory: [8, 9, 9, 10, 10, 11, 12, 12],
+        reviewCount: 760,
       },
       {
         rank: 5, platform: 'TGT', name: 'Two-tone / color-block canvas',
         priceRange: '$28–42', velocityPct: -5, weeks: 2, momentum: 'declining',
         trendHistory: [22, 20, 18, 16, 14, 13, 12, 11],
+        reviewCount: 410,
       },
     ],
     decisions: [
@@ -222,27 +238,32 @@ const INTEL: Record<string, CategoryIntel> = {
         rank: 1, platform: 'AMZ', name: 'Gym bag with wet / dry compartment',
         priceRange: '$22–35', velocityPct: 52, weeks: 3, momentum: 'surging',
         trendHistory: [18, 24, 32, 39, 44, 48, 50, 52],
+        reviewCount: 2200,
       },
       {
         rank: 2, platform: 'WMT', name: 'Lightweight hiking daypack',
         priceRange: '$22–35', velocityPct: 31, weeks: 6, momentum: 'growing',
         trendHistory: [14, 17, 20, 22, 25, 27, 29, 31],
+        reviewCount: 1480,
       },
       {
         rank: 3, platform: 'TGT', name: 'Insulated lunch tote / cooler bag',
         priceRange: '$18–28', velocityPct: 18, weeks: 8, momentum: 'steady',
         trendHistory: [12, 13, 14, 14, 15, 16, 17, 18],
+        reviewCount: 1150,
       },
       {
         rank: 4, platform: 'AMZ', name: 'Basic drawstring backpack',
         priceRange: '$15–26', velocityPct: -4, weeks: 2, momentum: 'plateauing',
         trendHistory: [14, 13, 13, 12, 11, 10, 9, 8],
+        reviewCount: 790,
         isYourProduct: true, yourNote: 'Your SKU (BLK-BCK-0087) is in this segment',
       },
       {
         rank: 5, platform: 'AMZ', name: 'Rolling / wheeled carry-on backpack',
         priceRange: '$28–48', velocityPct: -12, weeks: 4, momentum: 'declining',
         trendHistory: [22, 20, 18, 16, 13, 11, 9, 8],
+        reviewCount: 350,
       },
     ],
     decisions: [
@@ -279,27 +300,32 @@ const INTEL: Record<string, CategoryIntel> = {
         rank: 1, platform: 'AMZ', name: 'Barrel-leg / relaxed-taper denim',
         priceRange: '$38–55', velocityPct: 44, weeks: 5, momentum: 'surging',
         trendHistory: [18, 23, 28, 33, 37, 40, 42, 44],
+        reviewCount: 1720,
       },
       {
         rank: 2, platform: 'TGT', name: 'Wide-leg relaxed fit jeans',
         priceRange: '$35–50', velocityPct: 38, weeks: 7, momentum: 'growing',
         trendHistory: [14, 18, 22, 26, 29, 33, 36, 38],
+        reviewCount: 1380,
       },
       {
         rank: 3, platform: 'WMT', name: 'Straight-leg mid-rise denim',
         priceRange: '$28–40', velocityPct: 21, weeks: 4, momentum: 'steady',
         trendHistory: [20, 20, 21, 21, 20, 21, 21, 21],
+        reviewCount: 2050,
         isYourProduct: true, yourNote: 'Your SKU (DNM-JNS-4450) is in this segment',
       },
       {
         rank: 4, platform: 'AMZ', name: 'Cargo-pocket denim / utility jeans',
         priceRange: '$32–48', velocityPct: 16, weeks: 6, momentum: 'steady',
         trendHistory: [10, 11, 11, 12, 13, 14, 15, 16],
+        reviewCount: 710,
       },
       {
         rank: 5, platform: 'AMZ', name: 'Skinny / slim-fit denim',
         priceRange: '$25–40', velocityPct: -14, weeks: 8, momentum: 'declining',
         trendHistory: [42, 38, 33, 28, 24, 20, 17, 14],
+        reviewCount: 1860,
       },
     ],
     decisions: [

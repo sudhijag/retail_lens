@@ -2,8 +2,10 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { Brain, ChevronDown, RefreshCw, Plus, X, CheckCircle } from 'lucide-react'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { PRODUCTS, PLATFORMS } from '../lib/data'
 import { SCRAPED_PRODUCTS } from '../lib/scrapedData'
+import { CategoryIntelligencePanel } from './CategoryIntel'
 import type { Product } from '../lib/types'
 import type { MatchProductsRequest, MatchProductResult } from '../app/api/match-products/route'
 
@@ -345,6 +347,88 @@ function CompetitorSelector({
   )
 }
 
+// ── Price history for checked cells ──────────────────────────────────────────
+
+const hashId = (id: string) => id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0)
+
+function genHistory(price: number, seed: number): number[] {
+  return Array.from({ length: 30 }, (_, i) => {
+    const v = (Math.sin(seed * 1.7 + i * 0.43) + Math.sin(seed * 0.7 + i * 0.17)) * 0.5 + 0.5
+    return Math.round((price * (0.96 + v * 0.07)) * 100) / 100
+  })
+}
+
+function MatchPriceHistory({
+  checkedCells, platformRanks, competitors, yourPrice,
+}: {
+  checkedCells: Set<string>
+  platformRanks: Record<string, RankedMatch[]>
+  competitors: Competitor[]
+  yourPrice: number
+}) {
+  const checked: Array<{ product: typeof SCRAPED_PRODUCTS[0]; color: string; label: string }> = []
+  competitors.forEach(comp => {
+    ;(platformRanks[comp.id] ?? []).forEach(m => {
+      if (checkedCells.has(m.product.id))
+        checked.push({ product: m.product, color: comp.color, label: `${m.product.title.slice(0, 28)}… (${comp.name})` })
+    })
+  })
+
+  if (checked.length === 0) {
+    return (
+      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, padding: '28px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink3)', marginBottom: 4 }}>30-Day Price History</div>
+        <div style={{ fontSize: 11, color: 'var(--mid)' }}>Check cells in the table above to compare price histories</div>
+      </div>
+    )
+  }
+
+  const yourSeed = Math.round(yourPrice * 113)
+  const chartData = Array.from({ length: 30 }, (_, day) => {
+    const pt: Record<string, number | string> = { day: `D${day + 1}` }
+    pt['__your__'] = genHistory(yourPrice, yourSeed)[day]
+    checked.forEach(({ product }) => {
+      if (product.price != null) pt[product.id] = genHistory(product.price, hashId(product.id))[day]
+    })
+    return pt
+  })
+
+  return (
+    <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
+      <div style={{ padding: '13px 18px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>30-Day Price History</span>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>
+          {checked.length} product{checked.length > 1 ? 's' : ''} selected
+        </span>
+      </div>
+      <div style={{ padding: '16px 18px' }}>
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={chartData} margin={{ top: 4, right: 20, bottom: 4, left: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+            <XAxis dataKey="day"
+              tick={{ fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fill: 'var(--ink3)' }}
+              tickLine={false} interval={4} />
+            <YAxis tickFormatter={(v: number) => `$${v.toFixed(2)}`}
+              tick={{ fontSize: 10, fontFamily: "'IBM Plex Mono', monospace", fill: 'var(--ink3)' }}
+              tickLine={false} width={58} />
+            <Tooltip
+              formatter={(v: unknown) => [`$${Number(v).toFixed(2)}`, '']}
+              contentStyle={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, background: 'var(--ink)', border: 'none', borderRadius: 6, color: 'var(--cream)' }}
+            />
+            <Line dataKey="__your__" stroke="var(--amber)" strokeWidth={1.5} strokeDasharray="4 3"
+              dot={false} name="Your Price" />
+            {checked.map(({ product, color, label }) => (
+              <Line key={product.id} dataKey={product.id} stroke={color} strokeWidth={2}
+                dot={false} name={label} />
+            ))}
+            <Legend wrapperStyle={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, paddingTop: 8 }} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+  )
+}
+
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export default function ProductMatcher() {
@@ -355,6 +439,7 @@ export default function ProductMatcher() {
   const [hasAiScores,    setHasAiScores]    = useState(false)
   const [isRunningAi,    setIsRunningAi]    = useState(false)
   const [aiMode,         setAiMode]         = useState<string | null>(null)
+  const [checkedCells,   setCheckedCells]   = useState<Set<string>>(new Set())
 
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
 
@@ -382,12 +467,21 @@ export default function ProductMatcher() {
     setHasAiScores(false)
     setPlatformStatus({})
     setAiMode(null)
+    setCheckedCells(new Set())
   }, [selectedSkuId, enabled, selectedProduct])
 
   const toggleCompetitor = useCallback((id: string) => {
     setEnabled(prev => {
       const next = new Set(prev)
       next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }, [])
+
+  const toggleCell = useCallback((productId: string) => {
+    setCheckedCells(prev => {
+      const next = new Set(prev)
+      next.has(productId) ? next.delete(productId) : next.add(productId)
       return next
     })
   }, [])
@@ -576,14 +670,39 @@ export default function ProductMatcher() {
 
                 return Array.from({ length: TOP_N }, (_, colIdx) => {
                   const match = matches[colIdx] ?? null
+                  const isChecked = match ? checkedCells.has(match.product.id) : false
                   return (
                     <div
                       key={colIdx}
                       style={{
                         borderLeft: '1px solid var(--border)',
                         background: colIdx === 0 && match && match.overall >= 70 ? `${comp.color}05` : 'white',
+                        position: 'relative',
                       }}
                     >
+                      {/* Checkbox */}
+                      {match && (
+                        <div
+                          role="button"
+                          tabIndex={0}
+                          onClick={() => toggleCell(match.product.id)}
+                          onKeyDown={e => e.key === 'Enter' && toggleCell(match.product.id)}
+                          title={isChecked ? 'Remove from price history' : 'Add to price history'}
+                          style={{
+                            position: 'absolute', top: 7, right: 7, zIndex: 10,
+                            width: 16, height: 16, borderRadius: 4,
+                            background: isChecked ? comp.color : 'white',
+                            border: `1.5px solid ${isChecked ? comp.color : 'var(--border2)'}`,
+                            cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                          }}
+                        >
+                          {isChecked && (
+                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                              <path d="M1.5 5L4 7.5L8.5 2.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </div>
+                      )}
                       {status === 'running' ? <PendingCell /> : <MatchCell match={match} rank={colIdx + 1} mode={status === 'done' ? 'ai' : 'attr'} />}
                     </div>
                   )
@@ -614,6 +733,17 @@ export default function ProductMatcher() {
           </div>
         ))}
       </div>
+
+      {/* 30-Day Price History */}
+      <MatchPriceHistory
+        checkedCells={checkedCells}
+        platformRanks={platformRanks}
+        competitors={activeCompetitors}
+        yourPrice={selectedProduct.yourPrice}
+      />
+
+      {/* Category Intelligence */}
+      <CategoryIntelligencePanel productId={selectedSkuId} />
 
       {/* Score legend */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '8px 16px', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8 }}>
