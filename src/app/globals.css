@@ -1,25 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 :root {
-  --cream: #faf7f2;
-  --warm-white: #f5f1ea;
-  --paper: #ede8df;
-  --sand: #d9d0c1;
-  --mid: #b5a892;
-  --ink: #1a1714;
-  --ink2: #3d3830;
-  --ink3: #6b6256;
-  --accent: #c8410a;
-  --accent-soft: #fef0e8;
-  --accent2: #1a6b3c;
-  --accent2-soft: #e8f5ed;
-  --blue: #1a3f6b;
-  --blue-soft: #e8eef5;
-  --amber: #c87d0a;
-  --amber-soft: #fef6e3;
-  --border: #e0d9cf;
-  --border2: #cec5b8;
+  --cream: #f8fafc;
+  --warm-white: #eef3f9;
+  --paper: #e2e8f0;
+  --sand: #cbd5e1;
+  --mid: #64748b;
+  --ink: #0f172a;
+  --ink2: #1e293b;
+  --ink3: #475569;
+  --accent: #2563eb;
+  --accent-soft: rgba(37, 99, 235, 0.1);
+  --accent2: #059669;
+  --accent2-soft: rgba(5, 150, 105, 0.12);
+  --blue: #1d4ed8;
+  --blue-soft: rgba(29, 78, 216, 0.1);
+  --amber: #d97706;
+  --amber-soft: rgba(217, 119, 6, 0.12);
+  --border: rgba(71, 85, 105, 0.14);
+  --border2: rgba(71, 85, 105, 0.26);
+  --panel: #ffffff;
+  --panel-2: #f8fafc;
+  --shadow: 0 18px 38px rgba(15, 23, 42, 0.09);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -27,16 +30,20 @@
 html, body { height: 100%; }
 
 body {
-  background: var(--cream);
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.06), transparent 24%),
+    radial-gradient(circle at top right, rgba(5, 150, 105, 0.05), transparent 20%),
+    linear-gradient(180deg, #f6f9fc 0%, #edf3f9 100%);
   color: var(--ink);
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 13px;
-  line-height: 1.5;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  letter-spacing: -0.01em;
 }
 
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.24); border-radius: 999px; }
 
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
 .blink { animation: blink 2.5s ease-in-out infinite; }
@@ -53,10 +60,55 @@ body {
 .flash-red   { animation: flashRed 1s ease; }
 
 .recharts-tooltip-wrapper .recharts-default-tooltip {
-  background: var(--ink) !important;
-  border: none !important;
-  border-radius: 6px !important;
-  font-family: 'IBM Plex Mono', monospace !important;
-  font-size: 11px !important;
-  color: var(--cream) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 12px !important;
+  color: var(--ink) !important;
+}
+
+.dashboard-shell {
+  min-height: 100vh;
+  background: transparent;
+}
+
+.dashboard-content [style*="background: white"],
+.dashboard-content [style*="background:white"] {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.98)) !important;
+  box-shadow: var(--shadow);
+}
+
+.dashboard-content [style*="background: var(--warm-white)"],
+.dashboard-content [style*="background:var(--warm-white)"] {
+  background: rgba(238, 243, 249, 0.98) !important;
+}
+
+.dashboard-content [style*="background: var(--paper)"],
+.dashboard-content [style*="background:var(--paper)"] {
+  background: rgba(226, 232, 240, 0.98) !important;
+}
+
+.dashboard-content [style*="Playfair Display"] {
+  font-family: 'Manrope', sans-serif !important;
+  letter-spacing: -0.03em;
+}
+
+.dashboard-content [style*="IBM Plex Mono"] {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+.dashboard-content [style*="font-size: 8px"] { font-size: 11px !important; }
+.dashboard-content [style*="font-size: 9px"] { font-size: 12px !important; }
+.dashboard-content [style*="font-size: 10px"] { font-size: 12.5px !important; }
+.dashboard-content [style*="font-size: 11px"] { font-size: 13.5px !important; }
+.dashboard-content [style*="font-size: 12px"] { font-size: 14.5px !important; }
+
+.dashboard-content button {
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.dashboard-content button:hover {
+  transform: translateY(-1px);
 }

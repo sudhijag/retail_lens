@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, Legend, ResponsiveContainer, ReferenceLine, ReferenceDot,
+  Tooltip, ResponsiveContainer, ReferenceLine, ReferenceDot,
   ReferenceArea,
 } from 'recharts'
-import { ChevronDown, CheckCircle, TrendingUp, TrendingDown, Minus, Brain, RefreshCw, Zap, ChevronRight } from 'lucide-react'
+import { ChevronDown, CheckCircle, TrendingUp, TrendingDown, Minus, Brain, ChevronRight } from 'lucide-react'
 import { PRODUCTS } from '../lib/data'
 import { getCategoryIntel } from '../lib/categoryIntelligence'
 import type { ForecastIntelResponse, TrendSignal, NextSkuPrediction } from '../app/api/forecast-intel/route'
@@ -103,10 +103,9 @@ function ForecastCard({ label, price, changePct }: { label: string; price: numbe
   const up    = changePct > 0.5
   const down  = changePct < -0.5
   const color = up ? 'var(--accent)' : down ? 'var(--accent2)' : 'var(--amber)'
-  const bg    = up ? 'var(--accent-soft)' : down ? 'var(--accent2-soft)' : '#fef6e3'
   const Icon  = up ? TrendingUp : down ? TrendingDown : Minus
   return (
-    <div style={{ background: bg, border: `1px solid ${up ? '#f0c0a0' : down ? '#a0d8b4' : '#e8d5a0'}`, borderRadius: 10, padding: '16px 18px', flex: 1 }}>
+    <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 18px', flex: 1 }}>
       <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color, marginBottom: 10 }}>{label}</div>
       <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 30, fontWeight: 700, color, lineHeight: 1, marginBottom: 4 }}>{fmt(price)}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -183,7 +182,7 @@ function TrendSignalCard({ signal }: { signal: TrendSignal }) {
       {/* Expand toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, color: 'var(--blue)', fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>
         <ChevronRight size={11} style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-        {expanded ? 'Hide implications' : 'What this means for your SKU'}
+        {expanded ? 'Less' : 'Details'}
       </div>
 
       {expanded && (
@@ -226,7 +225,7 @@ function NextSkuCard({ prediction }: { prediction: NextSkuPrediction }) {
       {/* Expand toggle */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, color: 'var(--blue)', fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>
         <ChevronRight size={11} style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-        {expanded ? 'Hide rationale' : 'View full rationale'}
+        {expanded ? 'Less' : 'Details'}
       </div>
 
       {expanded && (
@@ -251,24 +250,24 @@ function SkuSelector({ value, onChange }: { value: string; onChange: (id: string
   }, [])
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 12px', background: 'white', border: '1px solid var(--border2)', borderRadius: 7, cursor: 'pointer', minWidth: 240, fontFamily: "'IBM Plex Sans', sans-serif" }}>
-        <span style={{ fontSize: 16 }}>{selected.emoji}</span>
+      <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'white', border: '1px solid var(--border2)', borderRadius: 12, cursor: 'pointer', minWidth: 340, fontFamily: "'IBM Plex Sans', sans-serif", boxShadow: 'var(--shadow)' }}>
+        <span style={{ fontSize: 26 }}>{selected.emoji}</span>
         <div style={{ flex: 1, textAlign: 'left' }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)', lineHeight: 1.2 }}>{selected.name}</div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--mid)' }}>{selected.id} · {fmt(selected.yourPrice)}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2 }}>{selected.name}</div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>{selected.id} · {selected.category} · {fmt(selected.yourPrice)}</div>
         </div>
-        <ChevronDown size={12} color="var(--ink3)" />
+        <ChevronDown size={16} color="var(--ink3)" />
       </button>
       {open && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, zIndex: 50, background: 'white', border: '1px solid var(--border)', borderRadius: 8, boxShadow: '0 4px 16px rgba(0,0,0,0.1)', minWidth: 280, overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 6, zIndex: 50, background: 'white', border: '1px solid var(--border)', borderRadius: 12, boxShadow: 'var(--shadow)', minWidth: 340, overflow: 'hidden' }}>
           {PRODUCTS.map(p => (
-            <button key={p.id} onClick={() => { onChange(p.id); setOpen(false) }} style={{ width: '100%', padding: '9px 14px', display: 'flex', alignItems: 'center', gap: 10, background: p.id === value ? 'var(--warm-white)' : 'white', border: 'none', cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid var(--border)', fontFamily: "'IBM Plex Sans', sans-serif" }}>
-              <span style={{ fontSize: 18 }}>{p.emoji}</span>
+            <button key={p.id} onClick={() => { onChange(p.id); setOpen(false) }} style={{ width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12, background: p.id === value ? 'var(--warm-white)' : 'white', border: 'none', cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid var(--border)', fontFamily: "'IBM Plex Sans', sans-serif" }}>
+              <span style={{ fontSize: 22 }}>{p.emoji}</span>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: 'var(--ink)' }}>{p.name}</div>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--mid)' }}>{p.id} · {fmt(p.yourPrice)}</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{p.name}</div>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>{p.id} · {fmt(p.yourPrice)}</div>
               </div>
-              {p.id === value && <CheckCircle size={11} color="var(--accent2)" style={{ marginLeft: 'auto' }} />}
+              {p.id === value && <CheckCircle size={13} color="var(--accent2)" style={{ marginLeft: 'auto' }} />}
             </button>
           ))}
         </div>
@@ -323,11 +322,8 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
   return (
     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-      <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)' }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Price Sensitivity Analysis</div>
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)', marginTop: 2 }}>
-          Drag to simulate pricing scenarios in real time
-        </div>
+      <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Sensitivity</div>
       </div>
       <div style={{ padding: '20px 24px' }}>
         {/* Slider */}
@@ -337,9 +333,6 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>
                 {fmt(sliderValue)}
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)', marginTop: 2 }}>
-                If you price at this
               </div>
             </div>
             <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>{fmt(max)}</span>
@@ -359,7 +352,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
           {/* Change from current */}
           <div style={{ padding: '10px 12px', borderRadius: 8, background: Math.abs(diff) < 0.01 ? 'var(--warm-white)' : diff > 0 ? 'var(--accent-soft)' : 'var(--accent2-soft)', border: `1px solid ${Math.abs(diff) < 0.01 ? 'var(--border)' : diff > 0 ? '#f0c0a0' : '#a0d8b4'}` }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: diffColor, textTransform: 'uppercase', marginBottom: 4 }}>vs Current</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: diffColor, textTransform: 'uppercase', marginBottom: 4 }}>Delta</div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: diffColor }}>
               {diff > 0 ? '+' : ''}{fmt(diff)}
             </div>
@@ -367,7 +360,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
           {/* Volume impact */}
           <div style={{ padding: '10px 12px', borderRadius: 8, background: volumeImpact >= 0 ? 'var(--accent2-soft)' : 'var(--accent-soft)', border: `1px solid ${volumeImpact >= 0 ? '#a0d8b4' : '#f0c0a0'}` }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: volColor, textTransform: 'uppercase', marginBottom: 4 }}>Est. Volume</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: volColor, textTransform: 'uppercase', marginBottom: 4 }}>Volume</div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: volColor }}>
               {volumeImpact >= 0 ? '+' : ''}{volumeImpact.toFixed(1)}%
             </div>
@@ -375,7 +368,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
           {/* Revenue impact */}
           <div style={{ padding: '10px 12px', borderRadius: 8, background: revenueImpact >= 0 ? 'var(--accent2-soft)' : 'var(--accent-soft)', border: `1px solid ${revenueImpact >= 0 ? '#a0d8b4' : '#f0c0a0'}` }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: revColor, textTransform: 'uppercase', marginBottom: 4 }}>Est. Revenue/mo</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: revColor, textTransform: 'uppercase', marginBottom: 4 }}>Revenue</div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: revColor }}>
               {revenueImpact >= 0 ? '+' : ''}${Math.abs(revenueImpact)}
             </div>
@@ -383,17 +376,11 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
           {/* Competitive rank */}
           <div style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--blue-soft)', border: '1px solid #c0cfe0' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--blue)', textTransform: 'uppercase', marginBottom: 4 }}>Comp. Rank</div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--blue)', textTransform: 'uppercase', marginBottom: 4 }}>Rank</div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: 'var(--blue)' }}>
               #{rank} of {allPrices.length}
             </div>
           </div>
-        </div>
-
-        {/* Context note */}
-        <div style={{ marginTop: 14, padding: '8px 12px', background: 'var(--warm-white)', borderRadius: 7, fontSize: 11, color: 'var(--ink3)', lineHeight: 1.5 }}>
-          <strong style={{ color: 'var(--ink2)' }}>Methodology:</strong> Volume impact estimated at -8% per $1 above market avg and +6% per $1 below.
-          Revenue impact = estimated volume change × price × 30 days. Competitive rank vs market average {fmt(marketAvg)}.
         </div>
       </div>
     </div>
@@ -467,7 +454,9 @@ export default function PriceForecast() {
     }
   }, [])
 
-  useEffect(() => { loadIntel(selectedProduct) }, [selectedSkuId])  // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    void Promise.resolve().then(() => loadIntel(selectedProduct))
+  }, [selectedSkuId])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const fd = forecastData
   const showMonths = PERIOD_MONTHS[timePeriod]
@@ -493,49 +482,19 @@ export default function PriceForecast() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
       {/* Control bar */}
-      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 18px', display: 'flex', alignItems: 'center', gap: 16 }}>
-        <div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink3)', textTransform: 'uppercase', letterSpacing: '.5px', marginBottom: 5 }}>Private Label SKU</div>
+      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 320 }}>
           <SkuSelector value={selectedSkuId} onChange={id => setSelectedSkuId(id)} />
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
-          {intel && (
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, padding: '2px 7px', borderRadius: 3, background: intel.mode === 'ai' ? 'var(--accent2-soft)' : 'var(--paper)', color: intel.mode === 'ai' ? 'var(--accent2)' : 'var(--mid)' }}>
-              {intel.mode === 'ai' ? 'LIVE AI ANALYSIS' : 'CACHED ANALYSIS'}
-            </span>
-          )}
-          <button
-            onClick={() => loadIntel(selectedProduct)}
-            disabled={loading}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: loading ? 'var(--paper)' : 'var(--warm-white)', color: loading ? 'var(--mid)' : 'var(--ink2)', border: '1px solid var(--border)', borderRadius: 7, fontSize: 11, fontWeight: 500, cursor: loading ? 'not-allowed' : 'pointer', fontFamily: "'IBM Plex Sans', sans-serif" }}
-          >
-            {loading ? <><RefreshCw size={11} style={{ animation: 'spin 1s linear infinite' }} />Refreshing…</> : <><Brain size={11} />Refresh Intel</>}
-          </button>
         </div>
       </div>
 
       {/* ── Price Forecast Chart ── */}
       {fd && (
-        <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
+        <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 20px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-            <div>
-              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Price Forecast</span>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)', marginLeft: 10 }}>
-                12 months historical + forecast · shaded = confidence band
-              </span>
-            </div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Price Forecast</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <TimePeriodSelector value={timePeriod} onChange={setTimePeriod} />
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <div style={{ width: 22, height: 2.5, background: 'var(--blue)', borderRadius: 2 }} />
-                  <span style={{ fontSize: 10, color: 'var(--ink3)', fontFamily: "'IBM Plex Mono', monospace" }}>Historical</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <div style={{ width: 22, height: 2.5, background: 'var(--amber)', borderRadius: 2 }} />
-                  <span style={{ fontSize: 10, color: 'var(--ink3)', fontFamily: "'IBM Plex Mono', monospace" }}>Forecast</span>
-                </div>
-              </div>
             </div>
           </div>
           <div style={{ padding: '16px 20px' }}>
@@ -624,10 +583,6 @@ export default function PriceForecast() {
                   />
                 )}
 
-                <Legend
-                  wrapperStyle={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, paddingTop: 6 }}
-                  formatter={(value: string) => ['Historical', 'Forecast'].includes(value) ? value : null}
-                />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -636,18 +591,15 @@ export default function PriceForecast() {
 
       {/* ── Forecast Summary Cards ── */}
       {fd && (
-        <div ref={forecastCardsRef}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--ink3)', marginBottom: 10 }}>
-            Price Targets
-          </div>
+        <div ref={forecastCardsRef} style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '18px 20px' }}>
           <div style={{ display: 'flex', gap: 14 }}>
             {showMonths >= 3  && <ForecastCard label="+3 Months"  price={fd.price3M}  changePct={fd.change3M}  />}
             {showMonths >= 6  && <ForecastCard label="+6 Months"  price={fd.price6M}  changePct={fd.change6M}  />}
             {showMonths >= 12 && <ForecastCard label="+12 Months" price={fd.price12M} changePct={fd.change12M} />}
           </div>
           {intel?.priceRationale && (
-            <div style={{ marginTop: 10, padding: '10px 14px', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6 }}>
-              <strong>Why: </strong>{intel.priceRationale}
+            <div style={{ marginTop: 12, padding: '12px 14px', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 10, fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6 }}>
+              {intel.priceRationale}
             </div>
           )}
         </div>
@@ -662,10 +614,7 @@ export default function PriceForecast() {
       {loading && (
         <div style={{ padding: '24px 20px', background: 'white', border: '1px solid var(--border)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
           <Brain size={18} color="var(--blue)" style={{ animation: 'blink 2s ease-in-out infinite' }} />
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)', marginBottom: 3 }}>Generating AI market intelligence…</div>
-            <div style={{ fontSize: 11, color: 'var(--ink3)' }}>Analysing {selectedProduct.category} category trends, customer signals, and next SKU opportunities</div>
-          </div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>Refreshing…</div>
         </div>
       )}
 
@@ -676,57 +625,38 @@ export default function PriceForecast() {
       )}
 
       {/* ── Market Trend Signals ── */}
-      {intel && intel.trendSignals?.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <Zap size={13} color="var(--amber)" />
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Category Trend Signals</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>
-              {selectedProduct.category} · {selectedProduct.subcategory}
-            </span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', marginLeft: 4 }}>
-              click any card to expand
-            </span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-            {intel.trendSignals.map((s, i) => <TrendSignalCard key={i} signal={s} />)}
-          </div>
-        </div>
-      )}
-
-      {/* ── Next SKU Predictions ── */}
-      {intel && intel.nextSkuPredictions?.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-            <TrendingUp size={13} color="var(--accent2)" />
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Next Product Opportunities</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>AI-predicted emerging SKUs in this category</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', marginLeft: 4 }}>
-              click to view full rationale
-            </span>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-            {intel.nextSkuPredictions.map((p, i) => <NextSkuCard key={i} prediction={p} />)}
-          </div>
-        </div>
-      )}
-
-      {/* ── Customer Review Insights ── */}
-      {intel && intel.reviewInsights?.length > 0 && (
-        <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
-          <div style={{ padding: '11px 18px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Customer Signals</span>
-            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>what buyers consistently say they want more of</span>
-          </div>
-          <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {intel.reviewInsights.map((insight, i) => (
-              <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-                <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--blue-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 700, color: 'var(--blue)' }}>{i + 1}</span>
+      {intel && (
+        <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+          <div style={{ padding: '13px 18px', borderBottom: '1px solid var(--border)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Insights</div>
+          <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {intel.trendSignals?.length > 0 && (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                  {intel.trendSignals.map((s, i) => <TrendSignalCard key={i} signal={s} />)}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6 }}>{insight}</div>
               </div>
-            ))}
+            )}
+            {intel.nextSkuPredictions?.length > 0 && (
+              <div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                  {intel.nextSkuPredictions.map((p, i) => <NextSkuCard key={i} prediction={p} />)}
+                </div>
+              </div>
+            )}
+            {intel.reviewInsights?.length > 0 && (
+              <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {intel.reviewInsights.map((insight, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--blue-soft)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 700, color: 'var(--blue)' }}>{i + 1}</span>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6 }}>{insight}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
