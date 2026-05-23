@@ -356,10 +356,20 @@ function PendingCell() {
 function PricePositionPanel({ matches, yourPrice }: { matches: FlatMatch[]; yourPrice: number }) {
   const livePrices = matches.map(m => m.product.price).filter((p): p is number => p != null)
   const usingFallback = livePrices.length === 0
+  const fallbackPlatformCounts = { AMZ: 11, WMT: 10, TGT: 9 }
   const prices = (usingFallback ? buildFallbackPrices(yourPrice) : livePrices).sort((a, b) => a - b)
   const markers = usingFallback
     ? prices.map((price, i) => ({ price, i, color: 'var(--blue)' }))
     : matches.map((match, i) => ({ price: match.product.price as number, i, color: match.color }))
+  const platformCounts = ALL_COMPETITORS.map(competitor => ({
+    id: competitor.id,
+    name: competitor.name,
+    color: competitor.color,
+    count: usingFallback
+      ? fallbackPlatformCounts[competitor.id as keyof typeof fallbackPlatformCounts]
+      : matches.filter(match => match.platformId === competitor.id).length,
+  }))
+  const aggregateCount = platformCounts.reduce((sum, item) => sum + item.count, 0)
   if (!prices.length) return null
 
   const low = prices[0]
@@ -380,8 +390,29 @@ function PricePositionPanel({ matches, yourPrice }: { matches: FlatMatch[]; your
         <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div style={SECTION_HEADER_STYLE}>Price Position</div>
-            <div style={{ marginTop: 4, fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)' }}>
-              {usingFallback ? 'Using fallback comparison prices' : `${matches.length} matches cleared the 70% threshold`}
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div style={{ padding: '4px 8px', borderRadius: 999, background: 'var(--paper)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink)' }}>
+                Total {aggregateCount}
+              </div>
+              {platformCounts.map(item => (
+                <div
+                  key={item.id}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '4px 8px',
+                    borderRadius: 999,
+                    background: `${item.color}12`,
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: 10,
+                    color: item.color,
+                  }}
+                >
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: item.color, display: 'inline-block' }} />
+                  {item.name} {item.count}
+                </div>
+              ))}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -850,7 +881,7 @@ export default function PriceIntel() {
           <div style={{ padding: '16px 20px' }}>
             {curveData.length >= 2 ? (
               <ResponsiveContainer width="100%" height={320}>
-                <ComposedChart data={curveData} margin={{ top: 8, right: 20, bottom: 20, left: 8 }}>
+                <ComposedChart data={curveData} margin={{ top: 26, right: 20, bottom: 20, left: 8 }}>
                   <defs>
                     <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--amber)" stopOpacity={0.35} />
@@ -887,7 +918,7 @@ export default function PriceIntel() {
                     strokeWidth={4}
                     strokeDasharray="8 4"
                     ifOverflow="extendDomain"
-                    label={{ value: `Current SKU ${fmt(selectedProduct.yourPrice)}`, position: 'top', fill: '#d92d20', fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 800 }}
+                    label={{ value: `Current SKU ${fmt(selectedProduct.yourPrice)}`, position: 'insideTop', offset: 10, fill: '#d92d20', fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 800 }}
                   />
                 </ComposedChart>
               </ResponsiveContainer>

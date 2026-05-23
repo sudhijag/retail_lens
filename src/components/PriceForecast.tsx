@@ -102,15 +102,16 @@ const fmt = (n: number) => `$${n.toFixed(2)}`
 function ForecastCard({ label, price, changePct }: { label: string; price: number; changePct: number }) {
   const up    = changePct > 0.5
   const down  = changePct < -0.5
-  const color = up ? 'var(--accent)' : down ? 'var(--accent2)' : 'var(--amber)'
+  const changeColor = up ? 'var(--accent2)' : down ? '#d92d20' : 'var(--amber)'
+  const valueColor = 'var(--accent)'
   const Icon  = up ? TrendingUp : down ? TrendingDown : Minus
   return (
     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 18px', flex: 1 }}>
-      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color, marginBottom: 10 }}>{label}</div>
-      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 30, fontWeight: 700, color, lineHeight: 1, marginBottom: 4 }}>{fmt(price)}</div>
+      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color: valueColor, marginBottom: 10 }}>{label}</div>
+      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 30, fontWeight: 700, color: valueColor, lineHeight: 1, marginBottom: 4 }}>{fmt(price)}</div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-        <Icon size={13} color={color} />
-        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 700, color }}>
+        <Icon size={13} color={changeColor} />
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, fontWeight: 700, color: changeColor }}>
           {changePct > 0 ? '+' : ''}{changePct.toFixed(1)}% from today
         </span>
       </div>
