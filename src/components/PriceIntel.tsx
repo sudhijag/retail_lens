@@ -56,6 +56,7 @@ const MATCH_VISUAL_THRESHOLD = 70
 const TOP_N = 5
 const STOP = new Set(['the', 'and', 'for', 'with', 'men', 'mens', 'women', 'womens', 'adult', 'size', 'pack'])
 const SECTION_HEADER_STYLE = { fontSize: 17, fontWeight: 700, color: 'var(--ink)' } as const
+const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
 
 const tok = (s: string) => s.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP.has(w))
 const fmt = (n: number) => `$${n.toFixed(2)}`
@@ -389,6 +390,7 @@ function PricePositionPanel({ matches, yourPrice }: { matches: FlatMatch[]; your
         <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div style={SECTION_HEADER_STYLE}>Price Position</div>
+            <div style={SECTION_SUBTITLE_STYLE}>See where your current price sits against the live competitor range and platform coverage.</div>
             <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <div style={{ padding: '4px 8px', borderRadius: 999, background: 'var(--paper)', fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink)' }}>
                 Total {aggregateCount}
@@ -755,6 +757,7 @@ export default function PriceIntel() {
       <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)' }}>
           <div style={SECTION_HEADER_STYLE}>Platform Match Grid</div>
+          <div style={SECTION_SUBTITLE_STYLE}>Review the top AI-ranked competitor matches for each retailer side by side.</div>
         </div>
         <div style={{ padding: '0 20px 20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: `116px repeat(${TOP_N}, 1fr)`, borderBottom: '1px solid var(--border)', background: 'var(--warm-white)' }}>
@@ -815,6 +818,7 @@ export default function PriceIntel() {
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)' }}>
             <div style={SECTION_HEADER_STYLE}>Market Map</div>
+            <div style={SECTION_SUBTITLE_STYLE}>Compare competitor price points against review volume to spot stronger value positions.</div>
           </div>
           <div style={{ padding: '16px 20px' }}>
             <ResponsiveContainer width="100%" height={320}>
@@ -876,6 +880,7 @@ export default function PriceIntel() {
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)' }}>
             <div style={SECTION_HEADER_STYLE}>Price Distribution Curve</div>
+            <div style={SECTION_SUBTITLE_STYLE}>Understand how tightly the market clusters around your SKU and where pricing density peaks.</div>
           </div>
           <div style={{ padding: '16px 20px' }}>
             {curveData.length >= 2 ? (

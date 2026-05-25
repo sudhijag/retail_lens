@@ -99,6 +99,8 @@ function generateForecast(product: Product): ForecastData {
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 const fmt = (n: number) => `$${n.toFixed(2)}`
+const SECTION_HEADER_STYLE = { fontSize: 12, fontWeight: 600, color: 'var(--ink)' } as const
+const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
 
 function ForecastCard({ label, price, changePct }: { label: string; price: number; changePct: number }) {
   const up    = changePct > 0.5
@@ -329,7 +331,10 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
   return (
     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
       <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>Sensitivity</div>
+        <div>
+          <div style={SECTION_HEADER_STYLE}>Sensitivity</div>
+          <div style={SECTION_SUBTITLE_STYLE}>Test pricing scenarios to estimate volume, revenue, and competitive rank shifts.</div>
+        </div>
       </div>
       <div style={{ padding: '20px 24px' }}>
         {/* Slider */}
@@ -498,7 +503,10 @@ export default function PriceForecast() {
       {fd && (
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 20px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Price Forecast</div>
+            <div>
+              <div style={SECTION_HEADER_STYLE}>Price Forecast</div>
+              <div style={SECTION_SUBTITLE_STYLE}>Track projected price movement, confidence bands, and key milestones over time.</div>
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
               <TimePeriodSelector value={timePeriod} onChange={setTimePeriod} />
             </div>
@@ -633,7 +641,10 @@ export default function PriceForecast() {
       {/* ── Market Trend Signals ── */}
       {intel && (
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
-          <div style={{ padding: '13px 18px', borderBottom: '1px solid var(--border)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Insights</div>
+          <div style={{ padding: '13px 18px', borderBottom: '1px solid var(--border)' }}>
+            <div style={SECTION_HEADER_STYLE}>Insights</div>
+            <div style={SECTION_SUBTITLE_STYLE}>Review trend signals, next-SKU opportunities, and customer feedback patterns.</div>
+          </div>
           <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 18 }}>
             {intel.trendSignals?.length > 0 && (
               <div>
