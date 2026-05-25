@@ -78,14 +78,14 @@ export const SCRAPED_PRODUCTS: ScrapedListing[] = [
     id: 'tgt-2', platform: 'TGT', rank: 2,
     title: "Jockey Generation™ Men's Cotton Stretch Crewneck 3pk Undershirt",
     brand: 'Jockey',
-    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_7807949a-968a-48b0-b618-f201dfbf31b5?qlt=65&fmt=webp&hei=350&wid=350',
+    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_62aef49e-1044-4962-9845-7015d4631ea9?qlt=65&fmt=webp&hei=350&wid=350',
     rating: 4.6, reviews: '194', reviewCount: 194, price: 26.00,
   },
   {
     id: 'tgt-3', platform: 'TGT', rank: 3,
     title: "Jockey Generation™ Men's 100% Cotton V-Neck Undershirt 3pk",
     brand: 'Jockey',
-    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_81f314cc-ab3d-40a4-bd0c-338b6824dadc?qlt=65&fmt=webp&hei=350&wid=350',
+    imageUrl: 'https://target.scene7.com/is/image/Target/GUEST_7ba493f3-810d-4823-9525-1aed1e720f1a?qlt=65&fmt=webp&hei=350&wid=350',
     rating: 4.5, reviews: '159', reviewCount: 159, price: 21.00,
   },
   {
