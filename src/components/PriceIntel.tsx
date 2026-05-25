@@ -173,7 +173,7 @@ function HeroSkuSelector({ value, onChange }: { value: string; onChange: (id: st
   }, [])
 
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative', zIndex: 12 }}>
         <button
           onClick={() => setOpen(v => !v)}
           style={{
@@ -190,7 +190,9 @@ function HeroSkuSelector({ value, onChange }: { value: string; onChange: (id: st
             boxShadow: 'var(--shadow)',
           }}
         >
-          <span style={{ fontSize: 26 }}>{selected.emoji}</span>
+          <div style={{ width: 36, height: 36, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--paper)', flexShrink: 0 }}>
+            <Image src={selected.imageUrl} alt={selected.name} width={36} height={36} unoptimized style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+          </div>
           <div style={{ flex: 1, textAlign: 'left' }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2 }}>{selected.name}</div>
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>
@@ -234,7 +236,9 @@ function HeroSkuSelector({ value, onChange }: { value: string; onChange: (id: st
                   fontFamily: "'IBM Plex Sans', sans-serif",
                 }}
               >
-                <span style={{ fontSize: 22 }}>{p.emoji}</span>
+                <div style={{ width: 28, height: 28, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--paper)', flexShrink: 0 }}>
+                  <Image src={p.imageUrl} alt={p.name} width={28} height={28} unoptimized style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{p.name}</div>
                   <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>
@@ -311,11 +315,6 @@ function MatchCell({ match, rank, preview }: { match: RankedMatch | null; rank: 
         }}>
           {match.product.title}
         </div>
-        {match.product.brand && (
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)', marginBottom: 4 }}>
-            {match.product.brand}
-          </div>
-        )}
       </div>
       <div style={{ padding: '4px 8px' }}>
         <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>
@@ -676,7 +675,7 @@ export default function PriceIntel() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, overflow: 'visible' }}>
         <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 16 }}>
           <HeroSkuSelector value={selectedSkuId} onChange={id => {

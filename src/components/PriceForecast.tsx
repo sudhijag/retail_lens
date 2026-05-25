@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
   ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid,
@@ -250,9 +251,11 @@ function SkuSelector({ value, onChange }: { value: string; onChange: (id: string
     return () => document.removeEventListener('mousedown', h)
   }, [])
   return (
-    <div ref={ref} style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative', zIndex: 12 }}>
       <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: 'white', border: '1px solid var(--border2)', borderRadius: 12, cursor: 'pointer', minWidth: 340, fontFamily: "'IBM Plex Sans', sans-serif", boxShadow: 'var(--shadow)' }}>
-        <span style={{ fontSize: 26 }}>{selected.emoji}</span>
+        <div style={{ width: 34, height: 34, borderRadius: 9, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--paper)', flexShrink: 0 }}>
+          <Image src={selected.imageUrl} alt={selected.name} width={34} height={34} unoptimized style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        </div>
         <div style={{ flex: 1, textAlign: 'left' }}>
           <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2 }}>{selected.name}</div>
           <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>{selected.id} · {selected.category} · {fmt(selected.yourPrice)}</div>
@@ -263,7 +266,9 @@ function SkuSelector({ value, onChange }: { value: string; onChange: (id: string
         <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 6, zIndex: 50, background: 'white', border: '1px solid var(--border)', borderRadius: 12, boxShadow: 'var(--shadow)', minWidth: 340, overflow: 'hidden' }}>
           {PRODUCTS.map(p => (
             <button key={p.id} onClick={() => { onChange(p.id); setOpen(false) }} style={{ width: '100%', padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12, background: p.id === value ? 'var(--warm-white)' : 'white', border: 'none', cursor: 'pointer', textAlign: 'left', borderBottom: '1px solid var(--border)', fontFamily: "'IBM Plex Sans', sans-serif" }}>
-              <span style={{ fontSize: 22 }}>{p.emoji}</span>
+              <div style={{ width: 28, height: 28, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)', background: 'var(--paper)', flexShrink: 0 }}>
+                <Image src={p.imageUrl} alt={p.name} width={28} height={28} unoptimized style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              </div>
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink)' }}>{p.name}</div>
                 <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>{p.id} · {fmt(p.yourPrice)}</div>
@@ -483,7 +488,7 @@ export default function PriceForecast() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
       {/* Control bar */}
-      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap' }}>
+      <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 16, padding: '20px 22px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, flexWrap: 'wrap', overflow: 'visible', position: 'relative', zIndex: 2 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minWidth: 320 }}>
           <SkuSelector value={selectedSkuId} onChange={id => setSelectedSkuId(id)} />
         </div>

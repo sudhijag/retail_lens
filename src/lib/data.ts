@@ -121,6 +121,44 @@ function buildListings(productId: string, productIdx: number): Record<string, Li
 
 export const PRODUCTS: Product[] = [
   {
+    id: 'WHT-TEE-3340',
+    name: 'Basic Crew-Neck White T-Shirt',
+    emoji: '👕',
+    imageUrl: `data:image/svg+xml;utf8,${encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+          <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f8fbff"/>
+            <stop offset="100%" stop-color="#eef3f8"/>
+          </linearGradient>
+        </defs>
+        <rect width="120" height="120" rx="18" fill="url(#bg)"/>
+        <rect x="12" y="12" width="96" height="96" rx="16" fill="#ffffff" stroke="#d8e1eb"/>
+        <path d="M46 31h28l12 10 11 10-9 12-10-8 2 30H40l2-30-10 8-9-12 11-10 12-10z" fill="#ffffff" stroke="#c8d3df" stroke-width="2.5" stroke-linejoin="round"/>
+        <path d="M50 31c2 7 18 7 20 0" fill="none" stroke="#c8d3df" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M44 61h32M45 71h30M46 81h28" stroke="#e8edf3" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    `)}`,
+    category: 'Apparel',
+    subcategory: 'Tops',
+    tags: ['white', 'crew neck', 'cotton', 'unbranded', 'basic'],
+    aiDescription:
+      'Classic 100% cotton crew-neck T-shirt in optic white. Ribbed collar, double-needle sleeve and hem, pre-shrunk fabric. One of the most replicated unbranded apparel SKUs across e-commerce.',
+    yourPrice: 14.99,
+    attributes: [
+      { label: 'Material',  value: '100% Cotton' },
+      { label: 'Color',     value: 'Optic White' },
+      { label: 'Neckline',  value: 'Crew Neck' },
+      { label: 'Fit',       value: 'Regular' },
+      { label: 'Sleeve',    value: 'Short Sleeve' },
+      { label: 'Weight',    value: '180 GSM' },
+      { label: 'Sizes',     value: 'XS–3XL' },
+    ],
+    listings: buildListings('WHT-TEE-3340', 1),
+    matchStatus: 'matched',
+    overallMatchScore: 96,
+  },
+  {
     id: 'CLR-GLSS-001',
     name: 'Clear Rimless Oval Glasses',
     emoji: '🕶️',
@@ -143,30 +181,6 @@ export const PRODUCTS: Product[] = [
     listings: buildListings('CLR-GLSS-001', 0),
     matchStatus: 'matched',
     overallMatchScore: 91,
-  },
-  {
-    id: 'WHT-TEE-3340',
-    name: 'Basic Crew-Neck White T-Shirt',
-    emoji: '👕',
-    imageUrl: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=300&q=80',
-    category: 'Apparel',
-    subcategory: 'Tops',
-    tags: ['white', 'crew neck', 'cotton', 'unbranded', 'basic'],
-    aiDescription:
-      'Classic 100% cotton crew-neck T-shirt in optic white. Ribbed collar, double-needle sleeve and hem, pre-shrunk fabric. One of the most replicated unbranded apparel SKUs across e-commerce.',
-    yourPrice: 14.99,
-    attributes: [
-      { label: 'Material',  value: '100% Cotton' },
-      { label: 'Color',     value: 'Optic White' },
-      { label: 'Neckline',  value: 'Crew Neck' },
-      { label: 'Fit',       value: 'Regular' },
-      { label: 'Sleeve',    value: 'Short Sleeve' },
-      { label: 'Weight',    value: '180 GSM' },
-      { label: 'Sizes',     value: 'XS–3XL' },
-    ],
-    listings: buildListings('WHT-TEE-3340', 1),
-    matchStatus: 'matched',
-    overallMatchScore: 96,
   },
   {
     id: 'WHT-SNK-2201',
