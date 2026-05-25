@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
-import { Brain, ChevronDown, RefreshCw, CheckCircle } from 'lucide-react'
+import { Brain, ChevronDown, RefreshCw, CheckCircle, Plus, X } from 'lucide-react'
 import {
   ResponsiveContainer,
   ScatterChart,
@@ -18,7 +18,8 @@ import {
   Tooltip,
 } from 'recharts'
 import { PRODUCTS } from '../lib/data'
-import { SCRAPED_PRODUCTS, PLATFORM_COLORS, PLATFORM_NAMES } from '../lib/scrapedData'
+import { getScrapedProductsForSku, PLATFORM_COLORS, PLATFORM_NAMES } from '../lib/scrapedData'
+import type { ScrapedListing } from '../lib/scrapedData'
 import type { MatchProductsRequest, MatchProductResult } from '../app/api/match-products/route'
 import type { Product } from '../lib/types'
 
@@ -29,8 +30,15 @@ interface Competitor {
   hasData: boolean
 }
 
+interface MarketplaceOption {
+  id: string
+  name: string
+  color: string
+  category: string
+}
+
 interface RankedMatch {
-  product: typeof SCRAPED_PRODUCTS[0]
+  product: ScrapedListing
   attrScore: number
   textScore: number
   imageScore: number
@@ -51,8 +59,18 @@ const ALL_COMPETITORS: Competitor[] = [
   { id: 'WMT', name: 'Walmart', color: '#0071dc', hasData: true },
 ]
 
+const AVAILABLE_MARKETPLACES: MarketplaceOption[] = [
+  { id: 'TIKTOK', name: 'TikTok Shop', color: '#111111', category: 'Social commerce' },
+  { id: 'EBAY', name: 'eBay', color: '#e53238', category: 'Marketplace' },
+  { id: 'ETSY', name: 'Etsy', color: '#f1641e', category: 'Handmade marketplace' },
+  { id: 'TEMU', name: 'Temu', color: '#ff6a00', category: 'Value marketplace' },
+  { id: 'SHEIN', name: 'SHEIN', color: '#1f1f1f', category: 'Fast fashion' },
+  { id: 'INSTACART', name: 'Instacart', color: '#3fbe5a', category: 'Grocery delivery' },
+  { id: 'KROGER', name: 'Kroger', color: '#0054a6', category: 'Grocery retail' },
+  { id: 'MACYS', name: `Macy's`, color: '#d81f32', category: 'Department store' },
+]
+
 const DEFAULT_ENABLED = new Set(['AMZ', 'TGT', 'WMT'])
-const MATCH_VISUAL_THRESHOLD = 70
 const TOP_N = 5
 const STOP = new Set(['the', 'and', 'for', 'with', 'men', 'mens', 'women', 'womens', 'adult', 'size', 'pack'])
 const SECTION_HEADER_STYLE = { fontSize: 17, fontWeight: 700, color: 'var(--ink)' } as const
@@ -61,7 +79,7 @@ const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)'
 const tok = (s: string) => s.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP.has(w))
 const fmt = (n: number) => `$${n.toFixed(2)}`
 
-function computeAttrScore(product: Product, scraped: typeof SCRAPED_PRODUCTS[0]): number {
+function computeAttrScore(product: Product, scraped: ScrapedListing): number {
   let score = 0
   let weight = 0
   if (product.yourPrice > 0 && scraped.price != null && scraped.price > 0) {
@@ -255,7 +273,124 @@ function HeroSkuSelector({ value, onChange }: { value: string; onChange: (id: st
   )
 }
 
-function MatchCell({ match, rank, preview }: { match: RankedMatch | null; rank: number; preview: boolean }) {
+function AddCompetitorMenu({
+  options,
+  addedIds,
+  onAdd,
+}: {
+  options: MarketplaceOption[]
+  addedIds: Set<string>
+  onAdd: (id: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const remaining = options.filter(option => !addedIds.has(option.id))
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 7,
+          padding: '8px 14px',
+          borderRadius: 20,
+          border: '1.5px dashed var(--border2)',
+          background: 'white',
+          cursor: 'pointer',
+          fontSize: 12,
+          fontWeight: 600,
+          color: 'var(--ink2)',
+          fontFamily: "'IBM Plex Sans', sans-serif",
+        }}
+      >
+        <Plus size={13} />
+        Add competitor
+        <ChevronDown size={13} />
+      </button>
+      {open && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)',
+            left: 0,
+            width: 320,
+            background: 'white',
+            border: '1px solid var(--border)',
+            borderRadius: 14,
+            boxShadow: 'var(--shadow)',
+            overflow: 'hidden',
+            zIndex: 40,
+          }}
+        >
+          <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)', background: 'var(--warm-white)', fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>Available marketplaces</div>
+          {remaining.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {remaining.map(option => (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    onAdd(option.id)
+                    setOpen(false)
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 12,
+                    padding: '12px 16px',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border)',
+                    background: 'white',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: option.color, flexShrink: 0 }} />
+                    <div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>{option.name}</div>
+                      <div style={{ fontSize: 10, color: 'var(--mid)' }}>{option.category}</div>
+                    </div>
+                  </div>
+                  <Plus size={13} color="var(--ink3)" />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: '14px 16px', fontSize: 11, color: 'var(--mid)' }}>
+              All preview marketplaces have been added.
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function MatchCell({
+  match,
+  rank,
+  preview,
+  checked,
+  onToggle,
+}: {
+  match: RankedMatch | null
+  rank: number
+  preview: boolean
+  checked: boolean
+  onToggle: (id: string) => void
+}) {
   if (!match) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
@@ -272,14 +407,14 @@ function MatchCell({ match, rank, preview }: { match: RankedMatch | null; rank: 
       <div style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <input
           type="checkbox"
-          checked
-          readOnly
+          checked={checked}
+          onChange={() => onToggle(match.product.id)}
           aria-label={`Select ranked match ${rank}`}
           style={{
             width: 14,
             height: 14,
             accentColor: 'var(--accent)',
-            cursor: 'default',
+            cursor: 'pointer',
           }}
         />
         <span style={{
@@ -529,26 +664,31 @@ function CurveTooltip({ active, payload }: { active?: boolean; payload?: Array<{
 export default function PriceIntel() {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
   const [enabled, setEnabled] = useState<Set<string>>(new Set(DEFAULT_ENABLED))
+  const [addedMarketplaceIds, setAddedMarketplaceIds] = useState<string[]>([])
   const [aiPlatformRanks, setAiPlatformRanks] = useState<Record<string, RankedMatch[]>>({})
   const [platformStatus, setPlatformStatus] = useState<Record<string, PlatformStatus>>({})
   const [hasAiScores, setHasAiScores] = useState(false)
   const [isRunningAi, setIsRunningAi] = useState(false)
   const [aiMode, setAiMode] = useState<string | null>(null)
+  const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(new Set())
+  const [selectionTouched, setSelectionTouched] = useState(false)
 
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
+  const scrapedProducts = useMemo(() => getScrapedProductsForSku(selectedSkuId), [selectedSkuId])
   const activeCompetitors = ALL_COMPETITORS.filter(c => enabled.has(c.id) && c.hasData)
+  const addedMarketplaces = AVAILABLE_MARKETPLACES.filter(option => addedMarketplaceIds.includes(option.id))
 
   const previewPlatformRanks = useMemo(() => {
     const ranks: Record<string, RankedMatch[]> = {}
     for (const competitor of activeCompetitors) {
-      const pool = SCRAPED_PRODUCTS.filter(p => p.platform === competitor.id)
+      const pool = scrapedProducts.filter(p => p.platform === competitor.id)
       ranks[competitor.id] = pool.map(product => {
         const attr = computeAttrScore(selectedProduct, product)
         return { product, attrScore: attr, textScore: 0, imageScore: 0, overall: attr }
       }).sort((a, b) => b.overall - a.overall)
     }
     return ranks
-  }, [selectedProduct, activeCompetitors])
+  }, [selectedProduct, activeCompetitors, scrapedProducts])
 
   const platformRanks = hasAiScores ? aiPlatformRanks : previewPlatformRanks
 
@@ -557,6 +697,8 @@ export default function PriceIntel() {
     setAiPlatformRanks({})
     setPlatformStatus({})
     setAiMode(null)
+    setSelectedMatchIds(new Set())
+    setSelectionTouched(false)
   }, [])
 
   const toggleCompetitor = useCallback((id: string) => {
@@ -569,13 +711,21 @@ export default function PriceIntel() {
     resetToPreview()
   }, [resetToPreview])
 
+  const addMarketplace = useCallback((id: string) => {
+    setAddedMarketplaceIds(prev => (prev.includes(id) ? prev : [...prev, id]))
+  }, [])
+
+  const removeMarketplace = useCallback((id: string) => {
+    setAddedMarketplaceIds(prev => prev.filter(item => item !== id))
+  }, [])
+
   const runAiMatching = useCallback(async () => {
     setIsRunningAi(true)
     setAiMode(null)
 
     const tasks = activeCompetitors.map(competitor => async () => {
       setPlatformStatus(prev => ({ ...prev, [competitor.id]: 'running' }))
-      const pool = SCRAPED_PRODUCTS.filter(p => p.platform === competitor.id)
+      const pool = scrapedProducts.filter(p => p.platform === competitor.id)
       const req: MatchProductsRequest = {
         anchor: { id: selectedProduct.id, title: selectedProduct.name, imageUrl: selectedProduct.imageUrl },
         candidates: pool.map(p => ({ id: p.id, title: p.title, imageUrl: p.imageUrl })),
@@ -621,9 +771,37 @@ export default function PriceIntel() {
     await Promise.all(tasks.map(task => task()))
     setHasAiScores(true)
     setIsRunningAi(false)
-  }, [activeCompetitors, selectedProduct])
+  }, [activeCompetitors, selectedProduct, scrapedProducts])
 
-  const allRankedMatches: FlatMatch[] = Object.entries(platformRanks).flatMap(([platformId, ranks]) => {
+  const visiblePlatformMatches = useMemo(() => {
+    const visible: Record<string, RankedMatch[]> = {}
+    for (const competitor of activeCompetitors) {
+      visible[competitor.id] = (platformRanks[competitor.id] ?? []).slice(0, TOP_N)
+    }
+    return visible
+  }, [activeCompetitors, platformRanks])
+
+  const visibleMatchIds = useMemo(
+    () => new Set(Object.values(visiblePlatformMatches).flatMap(matches => matches.map(match => match.product.id))),
+    [visiblePlatformMatches]
+  )
+
+  const effectiveSelectedMatchIds = useMemo(() => {
+    if (!selectionTouched) return new Set(visibleMatchIds)
+    return new Set(Array.from(selectedMatchIds).filter(id => visibleMatchIds.has(id)))
+  }, [selectionTouched, selectedMatchIds, visibleMatchIds])
+
+  const toggleMatchSelection = useCallback((id: string) => {
+    setSelectionTouched(true)
+    setSelectedMatchIds(prev => {
+      const next = new Set(selectionTouched ? prev : visibleMatchIds)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }, [selectionTouched, visibleMatchIds])
+
+  const allRankedMatches: FlatMatch[] = Object.entries(visiblePlatformMatches).flatMap(([platformId, ranks]) => {
     const competitor = ALL_COMPETITORS.find(item => item.id === platformId)
     if (!competitor) return []
     return ranks.map(rank => ({
@@ -634,12 +812,14 @@ export default function PriceIntel() {
     }))
   })
 
-  const qualifyingMatches = allRankedMatches
-    .filter(match => match.overall >= MATCH_VISUAL_THRESHOLD && match.product.price != null)
+  const selectedMatches = allRankedMatches
+    .filter(match => effectiveSelectedMatchIds.has(match.product.id) && match.product.price != null)
     .sort((a, b) => b.overall - a.overall)
 
   const bubbleMatches = activeCompetitors.flatMap(competitor =>
-    (platformRanks[competitor.id] ?? []).slice(0, TOP_N).map((match, index) => ({
+    (visiblePlatformMatches[competitor.id] ?? [])
+      .filter(match => effectiveSelectedMatchIds.has(match.product.id))
+      .map((match, index) => ({
       reviews: match.product.reviewCount,
       price: match.product.price ?? selectedProduct.yourPrice,
       name: match.product.title,
@@ -651,10 +831,10 @@ export default function PriceIntel() {
     }))
   )
 
-  const qualifyingPrices = qualifyingMatches.map(match => match.product.price as number)
+  const selectedPrices = selectedMatches.map(match => match.product.price as number)
   const fallbackPrices = buildFallbackPrices(selectedProduct.yourPrice)
-  const curveSourcePrices = qualifyingPrices.length >= 2 ? qualifyingPrices : fallbackPrices
-  const curveData = qualifyingPrices.length >= 2
+  const curveSourcePrices = selectedPrices.length >= 2 ? selectedPrices : fallbackPrices
+  const curveData = selectedPrices.length >= 2
     ? gaussianKDE(curveSourcePrices, Math.max(0.75, (Math.max(...curveSourcePrices) - Math.min(...curveSourcePrices)) / 8 || 1.2))
     : gaussianKDE(curveSourcePrices, Math.max(0.75, (Math.max(...curveSourcePrices) - Math.min(...curveSourcePrices)) / 8 || 1.2))
   const curvePriceMin = curveData.length ? Math.min(...curveData.map(point => point.price), selectedProduct.yourPrice) : selectedProduct.yourPrice
@@ -713,6 +893,35 @@ export default function PriceIntel() {
                 {competitor.name}
               </button>
             ))}
+            {addedMarketplaces.map(marketplace => (
+              <button
+                key={marketplace.id}
+                onClick={() => removeMarketplace(marketplace.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 14px',
+                  borderRadius: 20,
+                  background: `${marketplace.color}12`,
+                  border: `1.5px solid ${marketplace.color}35`,
+                  cursor: 'pointer',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: marketplace.color,
+                  fontFamily: "'IBM Plex Sans', sans-serif",
+                }}
+              >
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: marketplace.color, flexShrink: 0 }} />
+                {marketplace.name}
+                <X size={11} />
+              </button>
+            ))}
+            <AddCompetitorMenu
+              options={AVAILABLE_MARKETPLACES}
+              addedIds={new Set(addedMarketplaceIds)}
+              onAdd={addMarketplace}
+            />
             <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8 }}>
               {aiMode && hasAiScores && (
                 <span style={{
@@ -774,7 +983,7 @@ export default function PriceIntel() {
           </div>
 
           {activeCompetitors.map((competitor, rowIdx) => {
-            const matches = (platformRanks[competitor.id] ?? []).slice(0, TOP_N)
+            const matches = visiblePlatformMatches[competitor.id] ?? []
             const status = platformStatus[competitor.id] ?? 'idle'
             const isLast = rowIdx === activeCompetitors.length - 1
             return (
@@ -783,6 +992,9 @@ export default function PriceIntel() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: competitor.color }} />
                     <span style={{ fontSize: 12, fontWeight: 700, color: competitor.color }}>{competitor.name}</span>
+                  </div>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink3)' }}>
+                    {matches.length} shown · {matches.filter(match => effectiveSelectedMatchIds.has(match.product.id)).length} selected
                   </div>
                   {status === 'running' && (
                     <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
@@ -803,7 +1015,13 @@ export default function PriceIntel() {
                   <div key={colIdx} style={{ borderLeft: '1px solid var(--border)', background: 'white' }}>
                     {status === 'running'
                       ? <PendingCell />
-                      : <MatchCell match={matches[colIdx] ?? null} rank={colIdx + 1} preview={!hasAiScores} />}
+                      : <MatchCell
+                          match={matches[colIdx] ?? null}
+                          rank={colIdx + 1}
+                          preview={!hasAiScores}
+                          checked={matches[colIdx] ? effectiveSelectedMatchIds.has(matches[colIdx].product.id) : false}
+                          onToggle={toggleMatchSelection}
+                        />}
                   </div>
                 ))}
               </div>
@@ -812,7 +1030,7 @@ export default function PriceIntel() {
         </div>
       </div>
 
-      <PricePositionPanel matches={qualifyingMatches} yourPrice={selectedProduct.yourPrice} />
+      <PricePositionPanel matches={selectedMatches} yourPrice={selectedProduct.yourPrice} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
@@ -857,11 +1075,11 @@ export default function PriceIntel() {
                   return (
                     <Scatter
                       key={competitor.id}
-                      name={PLATFORM_NAMES[competitor.id] ?? competitor.id}
+                      name={PLATFORM_NAMES[competitor.id as keyof typeof PLATFORM_NAMES] ?? competitor.id}
                       data={data}
-                      fill={PLATFORM_COLORS[competitor.id] ?? competitor.color}
+                      fill={PLATFORM_COLORS[competitor.id as keyof typeof PLATFORM_COLORS] ?? competitor.color}
                       shape={(props: { cx?: number; cy?: number; payload?: BubblePoint }) => (
-                        <PlatformDot {...props} fill={PLATFORM_COLORS[competitor.id] ?? competitor.color} />
+                        <PlatformDot {...props} fill={PLATFORM_COLORS[competitor.id as keyof typeof PLATFORM_COLORS] ?? competitor.color} />
                       )}
                     />
                   )

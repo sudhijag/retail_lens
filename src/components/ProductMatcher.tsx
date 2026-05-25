@@ -4,7 +4,8 @@ import Image from 'next/image'
 import { Brain, ChevronDown, RefreshCw, Plus, X, CheckCircle } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { PRODUCTS, PLATFORMS } from '../lib/data'
-import { SCRAPED_PRODUCTS } from '../lib/scrapedData'
+import { getScrapedProductsForSku } from '../lib/scrapedData'
+import type { ScrapedListing } from '../lib/scrapedData'
 import { CategoryIntelligencePanel } from './CategoryIntel'
 import type { Product } from '../lib/types'
 import type { MatchProductsRequest, MatchProductResult } from '../app/api/match-products/route'
@@ -35,7 +36,7 @@ const DEFAULT_ENABLED = new Set(['AMZ', 'TGT', 'WMT'])
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface RankedMatch {
-  product: typeof SCRAPED_PRODUCTS[0]
+  product: ScrapedListing
   attrScore: number
   textScore: number
   imageScore: number
@@ -49,7 +50,7 @@ type PlatformStatus = 'idle' | 'running' | 'done'
 const STOP = new Set(['the','and','for','with','men','mens','women','womens','adult','size','sizes','pack'])
 const tok = (s: string) => s.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP.has(w))
 
-function computeAttrScore(product: Product, scraped: typeof SCRAPED_PRODUCTS[0]): number {
+function computeAttrScore(product: Product, scraped: ScrapedListing): number {
   let score = 0; let weight = 0
   if (product.yourPrice > 0 && scraped.price != null && scraped.price > 0) {
     score += (Math.min(product.yourPrice, scraped.price) / Math.max(product.yourPrice, scraped.price)) * 100 * 0.4
@@ -366,7 +367,7 @@ function MatchPriceHistory({
   competitors: Competitor[]
   yourPrice: number
 }) {
-  const checked: Array<{ product: typeof SCRAPED_PRODUCTS[0]; color: string; label: string }> = []
+  const checked: Array<{ product: ScrapedListing; color: string; label: string }> = []
   competitors.forEach(comp => {
     ;(platformRanks[comp.id] ?? []).forEach(m => {
       if (checkedCells.has(m.product.id))
@@ -442,6 +443,7 @@ export default function ProductMatcher() {
   const [checkedCells,   setCheckedCells]   = useState<Set<string>>(new Set())
 
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
+  const scrapedProducts = getScrapedProductsForSku(selectedSkuId)
 
   // Instant attribute-only scoring whenever SKU or competitors change
   useEffect(() => {
@@ -450,7 +452,7 @@ export default function ProductMatcher() {
       const comp = ALL_COMPETITORS.find(c => c.id === cid)
       if (!comp?.hasData) { ranks[cid] = []; continue }
 
-      const pool = SCRAPED_PRODUCTS.filter(p => p.platform === cid as 'AMZ' | 'TGT' | 'WMT')
+      const pool = scrapedProducts.filter(p => p.platform === cid as 'AMZ' | 'TGT' | 'WMT')
       if (pool.length === 0) { ranks[cid] = []; continue }
 
       ranks[cid] = pool
@@ -497,7 +499,7 @@ export default function ProductMatcher() {
       .map(comp => async () => {
         setPlatformStatus(prev => ({ ...prev, [comp.id]: 'running' }))
 
-        const pool = SCRAPED_PRODUCTS.filter(p => p.platform === comp.id as 'AMZ' | 'TGT' | 'WMT')
+        const pool = scrapedProducts.filter(p => p.platform === comp.id as 'AMZ' | 'TGT' | 'WMT')
         const req: MatchProductsRequest = {
           anchor: { id: selectedProduct.id, title: selectedProduct.name, imageUrl: selectedProduct.imageUrl },
           candidates: pool.map(p => ({ id: p.id, title: p.title, imageUrl: p.imageUrl })),
@@ -537,7 +539,7 @@ export default function ProductMatcher() {
     await Promise.all(tasks.map(t => t()))
     setHasAiScores(true)
     setIsRunningAi(false)
-  }, [enabled, selectedProduct])
+  }, [enabled, selectedProduct, scrapedProducts])
 
   const enabledCompetitors = ALL_COMPETITORS.filter(c => enabled.has(c.id))
   const activeCompetitors  = enabledCompetitors.filter(c => c.hasData)
@@ -627,7 +629,7 @@ export default function ProductMatcher() {
                   <span style={{ fontSize: 12, fontWeight: 700, color: comp.color }}>{comp.name}</span>
                 </div>
                 <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--ink3)' }}>
-                  {SCRAPED_PRODUCTS.filter(p => p.platform === comp.id as 'AMZ' | 'TGT' | 'WMT').length} listings
+                  {scrapedProducts.filter(p => p.platform === comp.id as 'AMZ' | 'TGT' | 'WMT').length} listings
                 </div>
                 {status === 'running' && (
                   <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>

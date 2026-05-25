@@ -16,7 +16,7 @@ import type { Product } from '../lib/types'
 
 interface ForecastData {
   chartData: Array<{
-    label: string; monthIdx: number
+    label: string; axisLabel: string; monthIdx: number
     hist?: number | null; fcast?: number | null
     bandBase?: number | null; bandHeight?: number | null
   }>
@@ -26,58 +26,98 @@ interface ForecastData {
   nowLabel: string
 }
 
+function roundCurrency(value: number) {
+  return Math.round(value * 100) / 100
+}
+
+function clampPrice(value: number, floor: number) {
+  return roundCurrency(Math.max(floor, value))
+}
+
+function getForecastFluctuation(seed: number, month: number) {
+  const primaryWave = Math.sin(seed * 0.11 + month * 1.75) * 0.05
+  const secondaryWave = Math.cos(seed * 0.07 + month * 1.1) * 0.024
+  const monthJitter = (((seed + Math.round(month * 17)) % 11) - 5) * 0.006
+  return primaryWave + secondaryWave + monthJitter
+}
+
 function generateForecast(product: Product): ForecastData {
   const intel      = getCategoryIntel(product.id)
   const direction  = intel?.health.direction ?? 'stable'
   const rawPct     = parseFloat((intel?.health.quarterlyChange ?? '+0%').replace(/[^0-9.-]/g, '')) || 0
   const annualTrend = (direction === 'growing' ? 1 : direction === 'declining' ? -1 : 0)
-    * Math.min(rawPct * 4, 18) / 100
+    * Math.min(rawPct * 1.2, 4) / 100
 
   const base = product.yourPrice
   const seed = product.id.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+  const priceFloor = Math.max(1, base * 0.55)
+  const pointsPerMonth = 8
+  const historicalMonths = 12
+  const forecastMonths = 24
 
   const historical: number[] = []
-  for (let i = 12; i >= 1; i--) {
-    const monthFrac = i / 12
-    const trendBack = -annualTrend * monthFrac * 0.85
-    const seasonal  = Math.sin((i / 12) * Math.PI * 2 + 1) * 0.022
-    const noise     = (Math.sin(seed * 2.3 + i * 5.7) * 0.5 + 0.5) * 0.028 - 0.014
-    historical.push(Math.round((base * (1 + trendBack + seasonal + noise)) * 100) / 100)
+  const totalHistoryPoints = historicalMonths * pointsPerMonth
+  for (let i = totalHistoryPoints; i >= 1; i--) {
+    const monthPosition = i / pointsPerMonth
+    const monthFrac = monthPosition / historicalMonths
+    const trendBack = -annualTrend * monthFrac * 0.35
+    const seasonal  = Math.sin((monthPosition / 12) * Math.PI * 2 + 1) * 0.015
+    const oscillation = getForecastFluctuation(seed * 1.7, monthPosition) + Math.sin(seed * 0.13 + i * 1.4) * 0.012
+    historical.push(clampPrice(base * (1 + trendBack + seasonal + oscillation), priceFloor))
   }
   historical.push(base)
 
   const forecast: number[] = [base]
   const bandLow:  number[] = [base]
   const bandHigh: number[] = [base]
-  for (let i = 1; i <= 12; i++) {
-    const f = i / 12
-    const fPrice    = Math.round((base * (1 + annualTrend * f + Math.sin((i / 12) * Math.PI * 2 + 1) * 0.018)) * 100) / 100
-    const confWidth = base * (0.02 + f * 0.062)
+  const totalForecastPoints = forecastMonths * pointsPerMonth
+  for (let i = 1; i <= totalForecastPoints; i++) {
+    const f = i / totalForecastPoints
+    const monthPosition = i / pointsPerMonth
+    const baselineTrend = annualTrend * f * 0.55
+    const seasonalDrift = Math.sin((monthPosition / 12) * Math.PI * 2 + 1) * 0.012
+    const fluctuation = getForecastFluctuation(seed, monthPosition) + Math.sin(seed * 0.09 + i * 2.2) * 0.016
+    const zigZagBias = i % 2 === 0 ? -0.03 : 0.03
+    const meanReversion = -((forecast[i - 1] - base) / base) * 0.28
+    const nextPrice = base * (1 + baselineTrend + seasonalDrift + fluctuation + zigZagBias + meanReversion)
+    const fPrice = clampPrice(nextPrice, priceFloor)
+    const confWidth = Math.max(base * 0.035, base * (0.04 + Math.abs(fluctuation) * 0.35 + f * 0.012))
     forecast.push(fPrice)
-    bandLow.push(Math.round((fPrice - confWidth) * 100) / 100)
-    bandHigh.push(Math.round((fPrice + confWidth) * 100) / 100)
+    bandLow.push(clampPrice(fPrice - confWidth, priceFloor))
+    bandHigh.push(roundCurrency(fPrice + confWidth))
   }
 
   const now = new Date()
-  const labels: string[] = []
-  for (let i = 12; i >= 1; i--) {
-    const d = new Date(now); d.setMonth(d.getMonth() - i)
-    labels.push(d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }))
+  const labels: Array<{ label: string; axisLabel: string; monthIdx: number }> = []
+  for (let i = totalHistoryPoints; i >= 1; i--) {
+    const monthIdx = -(i / pointsPerMonth)
+    const wholeMonths = Math.ceil(Math.abs(monthIdx))
+    const d = new Date(now); d.setMonth(d.getMonth() - wholeMonths)
+    const axisLabel = Number.isInteger(Math.abs(monthIdx))
+      ? d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+      : ''
+    labels.push({ label: `hist-${i}`, axisLabel, monthIdx })
   }
-  labels.push('Now')
-  for (let i = 1; i <= 12; i++) {
-    const d = new Date(now); d.setMonth(d.getMonth() + i)
-    labels.push(d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }))
+  labels.push({ label: 'now', axisLabel: 'Now', monthIdx: 0 })
+  for (let i = 1; i <= totalForecastPoints; i++) {
+    const monthIdx = i / pointsPerMonth
+    const wholeMonths = Math.ceil(monthIdx)
+    const d = new Date(now); d.setMonth(d.getMonth() + wholeMonths)
+    const axisLabel = Number.isInteger(monthIdx)
+      ? d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
+      : ''
+    labels.push({ label: `fcast-${i}`, axisLabel, monthIdx })
   }
 
-  const chartData = labels.map((label, i) => {
-    const isHist  = i <= 12
-    const isFcast = i >= 12
+  const chartData = labels.map((point, i) => {
+    const isHist  = i <= totalHistoryPoints
+    const isFcast = i >= totalHistoryPoints
     const hi = i
-    const fi = i - 12
+    const fi = i - totalHistoryPoints
     return {
-      label,
-      monthIdx: i - 12,
+      label: point.label,
+      axisLabel: point.axisLabel,
+      monthIdx: point.monthIdx,
       hist:       isHist  ? historical[hi]           : null,
       fcast:      isFcast ? forecast[fi]             : null,
       bandBase:   isFcast && fi > 0 ? bandLow[fi]   : null,
@@ -87,10 +127,10 @@ function generateForecast(product: Product): ForecastData {
 
   return {
     chartData,
-    price3M:  forecast[3],  price6M:  forecast[6],  price12M:  forecast[12],
-    change3M: ((forecast[3]  - base) / base) * 100,
-    change6M: ((forecast[6]  - base) / base) * 100,
-    change12M:((forecast[12] - base) / base) * 100,
+    price3M:  forecast[3 * pointsPerMonth],  price6M:  forecast[6 * pointsPerMonth],  price12M:  forecast[12 * pointsPerMonth],
+    change3M: ((forecast[3 * pointsPerMonth]  - base) / base) * 100,
+    change6M: ((forecast[6 * pointsPerMonth]  - base) / base) * 100,
+    change12M:((forecast[12 * pointsPerMonth] - base) / base) * 100,
     annualTrend,
     nowLabel: 'Now',
   }
@@ -101,6 +141,7 @@ function generateForecast(product: Product): ForecastData {
 const fmt = (n: number) => `$${n.toFixed(2)}`
 const SECTION_HEADER_STYLE = { fontSize: 12, fontWeight: 600, color: 'var(--ink)' } as const
 const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
+const FORECAST_POINTS_PER_MONTH = 8
 
 function ForecastCard({ label, price, changePct }: { label: string; price: number; changePct: number }) {
   const up    = changePct > 0.5
@@ -310,6 +351,7 @@ interface PriceScenarioPanelProps {
 }
 
 function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps) {
+  const BASE_MONTHLY_UNITS = 12000
   const [sliderValue, setSliderValue] = useState(yourPrice)
   const min = Math.round(yourPrice * 0.8 * 100) / 100
   const max = Math.round(yourPrice * 1.2 * 100) / 100
@@ -317,8 +359,14 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
   const diff = sliderValue - yourPrice
   const marketAvg = matchPrices.length > 0 ? matchPrices.reduce((s, p) => s + p, 0) / matchPrices.length : yourPrice
   const aboveMarket = sliderValue - marketAvg
-  const volumeImpact = aboveMarket > 0 ? -(aboveMarket * 8) : Math.abs(aboveMarket) * 6
-  const revenueImpact = Math.round(sliderValue * (volumeImpact / 100) * 30)
+  const priceChangePct = (diff / yourPrice) * 100
+  const marketGapPct = marketAvg > 0 ? (aboveMarket / marketAvg) * 100 : 0
+  const rawVolumeImpact = -(priceChangePct * 1.15) - (marketGapPct * 0.55)
+  const volumeImpact = Math.max(-22, Math.min(18, rawVolumeImpact))
+  const currentMonthlyRevenue = yourPrice * BASE_MONTHLY_UNITS
+  const scenarioUnitsPerMonth = BASE_MONTHLY_UNITS * (1 + volumeImpact / 100)
+  const scenarioMonthlyRevenue = sliderValue * scenarioUnitsPerMonth
+  const monthlyRevenueDelta = Math.round(scenarioMonthlyRevenue - currentMonthlyRevenue)
 
   // Competitive rank: how many of the mock prices + yourPrice is the slider above
   const allPrices = [...matchPrices, yourPrice].sort((a, b) => a - b)
@@ -326,7 +374,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
   const diffColor = diff > 0 ? 'var(--accent)' : diff < 0 ? 'var(--accent2)' : 'var(--ink3)'
   const volColor  = volumeImpact >= 0 ? 'var(--accent2)' : 'var(--accent)'
-  const revColor  = revenueImpact >= 0 ? 'var(--accent2)' : 'var(--accent)'
+  const revColor  = monthlyRevenueDelta >= 0 ? 'var(--accent2)' : 'var(--accent)'
 
   return (
     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
@@ -378,10 +426,13 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
           </div>
 
           {/* Revenue impact */}
-          <div style={{ padding: '10px 12px', borderRadius: 8, background: revenueImpact >= 0 ? 'var(--accent2-soft)' : 'var(--accent-soft)', border: `1px solid ${revenueImpact >= 0 ? '#a0d8b4' : '#f0c0a0'}` }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: revColor, textTransform: 'uppercase', marginBottom: 4 }}>Revenue</div>
+          <div style={{ padding: '10px 12px', borderRadius: 8, background: monthlyRevenueDelta >= 0 ? 'var(--accent2-soft)' : 'var(--accent-soft)', border: `1px solid ${monthlyRevenueDelta >= 0 ? '#a0d8b4' : '#f0c0a0'}` }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: revColor, textTransform: 'uppercase', marginBottom: 4 }}>Revenue / 30d</div>
             <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: revColor }}>
-              {revenueImpact >= 0 ? '+' : ''}${Math.abs(revenueImpact)}
+              {monthlyRevenueDelta >= 0 ? '+' : '-'}${Math.abs(monthlyRevenueDelta).toLocaleString()}
+            </div>
+            <div style={{ marginTop: 4, fontSize: 10, color: 'var(--ink3)', lineHeight: 1.35 }}>
+              Gross revenue delta vs. current price
             </div>
           </div>
 
@@ -402,7 +453,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
 
 type TimePeriod = '3M' | '6M' | '12M' | '24M'
 
-const PERIOD_MONTHS: Record<TimePeriod, number> = { '3M': 3, '6M': 6, '12M': 12, '24M': 12 }
+const PERIOD_MONTHS: Record<TimePeriod, number> = { '3M': 3, '6M': 6, '12M': 12, '24M': 24 }
 
 function TimePeriodSelector({ value, onChange }: { value: TimePeriod; onChange: (t: TimePeriod) => void }) {
   return (
@@ -523,8 +574,9 @@ export default function PriceForecast() {
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" />
                 <XAxis
                   dataKey="label"
+                  tickFormatter={(_value, index) => visibleData[index]?.axisLabel ?? ''}
                   tick={{ fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", fill: 'var(--ink3)' }}
-                  tickLine={false} interval={3}
+                  tickLine={false} interval={FORECAST_POINTS_PER_MONTH - 1}
                 />
                 <YAxis
                   tickFormatter={v => `$${Number(v).toFixed(2)}`}
@@ -535,22 +587,22 @@ export default function PriceForecast() {
 
                 {/* Forecast zone background */}
                 <ReferenceArea
-                  x1="Now" x2={visibleData[visibleData.length - 1]?.label ?? 'Now'}
+                  x1="now" x2={visibleData[visibleData.length - 1]?.label ?? 'now'}
                   fill="rgba(200,125,10,0.04)"
                   strokeDasharray="none"
                 />
 
                 {/* Confidence band */}
-                <Area type="monotone" dataKey="bandBase"   stackId="band" fill="transparent" stroke="none" connectNulls={false} legendType="none" />
-                <Area type="monotone" dataKey="bandHeight" stackId="band" fill="url(#bandFill)" stroke="none" connectNulls={false} legendType="none" />
+                <Area type="linear" dataKey="bandBase"   stackId="band" fill="transparent" stroke="none" connectNulls={false} legendType="none" isAnimationActive={false} />
+                <Area type="linear" dataKey="bandHeight" stackId="band" fill="url(#bandFill)" stroke="none" connectNulls={false} legendType="none" isAnimationActive={false} />
 
                 {/* Historical line */}
-                <Line type="monotone" dataKey="hist"  stroke="var(--blue)"  strokeWidth={2.5} dot={false} connectNulls={false} name="Historical" />
+                <Line type="linear" dataKey="hist"  stroke="var(--blue)"  strokeWidth={2.5} dot={false} connectNulls={false} name="Historical" isAnimationActive={false} />
                 {/* Forecast line */}
-                <Line type="monotone" dataKey="fcast" stroke="var(--amber)" strokeWidth={2.5} strokeDasharray="7 3" dot={false} connectNulls={false} name="Forecast" />
+                <Line type="linear" dataKey="fcast" stroke="var(--amber)" strokeWidth={2.5} strokeDasharray="7 3" dot={false} connectNulls={false} name="Forecast" isAnimationActive={false} />
 
                 {/* Today marker */}
-                <ReferenceLine x="Now" stroke="var(--ink3)" strokeDasharray="4 3" strokeWidth={1.5}
+                <ReferenceLine x="now" stroke="var(--ink3)" strokeDasharray="4 3" strokeWidth={1.5}
                   label={{ value: 'Today', position: 'top', fill: 'var(--ink3)', fontSize: 9, fontFamily: "'IBM Plex Mono', monospace" }} />
 
                 {/* Current price reference */}
@@ -567,7 +619,6 @@ export default function PriceForecast() {
                     strokeWidth={2}
                     onClick={() => forecastCardsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                     style={{ cursor: 'pointer' }}
-                    label={{ value: fmt(fd.price3M), position: 'top', fill: 'var(--amber)', fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700 }}
                   />
                 )}
                 {showMonths >= 6 && (
@@ -580,7 +631,6 @@ export default function PriceForecast() {
                     strokeWidth={2}
                     onClick={() => forecastCardsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                     style={{ cursor: 'pointer' }}
-                    label={{ value: fmt(fd.price6M), position: 'top', fill: 'var(--amber)', fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700 }}
                   />
                 )}
                 {showMonths >= 12 && (
@@ -593,7 +643,6 @@ export default function PriceForecast() {
                     strokeWidth={2}
                     onClick={() => forecastCardsRef.current?.scrollIntoView({ behavior: 'smooth' })}
                     style={{ cursor: 'pointer' }}
-                    label={{ value: fmt(fd.price12M), position: 'top', fill: 'var(--amber)', fontSize: 9, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 700 }}
                   />
                 )}
 
