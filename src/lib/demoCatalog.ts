@@ -2,7 +2,7 @@
  * Demo competitor product catalog.
  * Products are designed to match each of the 5 private-label SKUs with realistic
  * titles, prices, and review counts. The attr scoring algorithm (computeAttrScore)
- * tokenises product names/tags — these titles are crafted to overlap heavily with
+ * tokenises product names/tags - these titles are crafted to overlap heavily with
  * the anchor SKU tokens, producing 70-95% match scores.
  */
 
@@ -45,7 +45,7 @@ const IMGS = {
 
 const img = (cat: keyof typeof IMGS, i: number) => IMGS[cat][i % IMGS[cat].length]
 
-// ── CLR-GLSS-001 — Clear Rimless Oval Glasses ($24.99) ───────────────────────
+// ── CLR-GLSS-001 - Clear Rimless Oval Glasses ($24.99) ───────────────────────
 // anchor tokens: {clear, rimless, oval, glasses, fashion, lightweight}
 // category tokens: {fashion, glasses, eyewear}
 
@@ -115,7 +115,7 @@ const GLASSES: ScrapedListing[] = [
   },
 ]
 
-// ── WHT-TEE-3340 — Basic Crew-Neck White T-Shirt ($14.99) ────────────────────
+// ── WHT-TEE-3340 - Basic Crew-Neck White T-Shirt ($14.99) ────────────────────
 // anchor tokens: {basic, crew, neck, white, shirt, cotton}
 // category tokens: {basic, tops, apparel}
 
@@ -185,7 +185,7 @@ const TSHIRTS: ScrapedListing[] = [
   },
 ]
 
-// ── WHT-SNK-2201 — White Canvas Low-Top Sneakers ($32.99) ───────────────────
+// ── WHT-SNK-2201 - White Canvas Low-Top Sneakers ($32.99) ───────────────────
 // anchor tokens: {white, canvas, sneakers, unisex}
 // category tokens: {canvas, sneakers, footwear}
 
@@ -255,7 +255,7 @@ const SNEAKERS: ScrapedListing[] = [
   },
 ]
 
-// ── BLK-BCK-0087 — Black Nylon Drawstring Backpack ($25.99) ─────────────────
+// ── BLK-BCK-0087 - Black Nylon Drawstring Backpack ($25.99) ─────────────────
 // anchor tokens: {black, nylon, drawstring, backpack, lightweight, sports}
 // category tokens: {drawstring, bags, accessories}
 
@@ -325,7 +325,7 @@ const BACKPACKS: ScrapedListing[] = [
   },
 ]
 
-// ── DNM-JNS-4450 — Blue Straight-Leg Denim Jeans ($42.99) ───────────────────
+// ── DNM-JNS-4450 - Blue Straight-Leg Denim Jeans ($42.99) ───────────────────
 // anchor tokens: {blue, straight, denim, jeans, unisex}
 // category tokens: {denim, jeans, apparel}
 

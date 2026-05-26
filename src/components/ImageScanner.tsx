@@ -236,7 +236,7 @@ export default function ImageScanner() {
                 Visual Product Scanner
               </div>
               <div style={{ fontSize: 12, color: 'var(--ink3)', lineHeight: 1.6 }}>
-                Upload any product image or paste an image URL — RetailLens identifies the product using AI vision and finds comparable listings across Amazon, Walmart & Target with live price comparison.
+                Upload any product image or paste an image URL - RetailLens identifies the product using AI vision and finds comparable listings across Amazon, Walmart & Target with live price comparison.
               </div>
               <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
                 {[
@@ -289,7 +289,7 @@ export default function ImageScanner() {
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink2)', marginBottom: 4 }}>
                     Drop product image here
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--mid)' }}>JPG · PNG · WEBP — supplier photos, screenshots, competitor listings</div>
+                  <div style={{ fontSize: 11, color: 'var(--mid)' }}>JPG · PNG · WEBP - supplier photos, screenshots, competitor listings</div>
                   <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }}
                     onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
                 </div>
@@ -589,9 +589,9 @@ export default function ImageScanner() {
                         <Zap size={11} color={isCompetitive ? 'var(--accent2)' : 'var(--accent)'} style={{ marginTop: 1, flexShrink: 0 }} />
                         <span style={{ fontSize: 11, color: isCompetitive ? 'var(--accent2)' : 'var(--accent)', fontWeight: 500, lineHeight: 1.5 }}>
                           {isCheapest
-                            ? `You're priced at or below market. Strong competitive position — consider a small margin expansion.`
+                            ? `You're priced at or below market. Strong competitive position - consider a small margin expansion.`
                             : isCompetitive
-                            ? `You're within $2 of market low. Competitive position — hold or test a 3–5% increase.`
+                            ? `You're within $2 of market low. Competitive position - hold or test a 3–5% increase.`
                             : `You're $${gap.toFixed(2)} (${gapPct}%) above the cheapest comparable. Most visually similar product: ${PLATFORM_NAMES[priceIntel.mostSimilar.platform]} at $${priceIntel.mostSimilar.price?.toFixed(2)}.`
                           }
                         </span>
@@ -607,7 +607,7 @@ export default function ImageScanner() {
                   <AlertCircle size={24} color="var(--mid)" style={{ margin: '0 auto 10px' }} />
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--ink2)', marginBottom: 4 }}>No comparable products found</div>
                   <div style={{ fontSize: 11, color: 'var(--ink3)', maxWidth: 360, margin: '0 auto' }}>
-                    No confident match (≥40%) found in the current catalog of 15 scraped white shirt listings. This product may be in a different category — try scanning a product of the same type.
+                    No confident match (≥40%) found in the current catalog of 15 scraped white shirt listings. This product may be in a different category - try scanning a product of the same type.
                   </div>
                 </div>
               )}

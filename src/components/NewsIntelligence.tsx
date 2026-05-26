@@ -20,31 +20,31 @@ interface CompactEvent {
 const EVENTS: CompactEvent[] = [
   {
     id: 'e1', ms: NEWS_ITEMS[0].timestampMs, platformId: 'AMZ', severity: 'critical', confidence: 87,
-    headline: 'Amazon repriced Clear Glasses 4× today — A9 elasticity test active',
-    action: 'Hold. Expect stabilisation in 6h — do not chase.',
+    headline: 'Amazon repriced Clear Glasses 4× today - A9 elasticity test active',
+    action: 'Hold. Expect stabilisation in 6h - do not chase.',
     icon: <TrendingDown size={11} />,
   },
   {
     id: 'e2', ms: NEWS_ITEMS[1].timestampMs, platformId: null, severity: 'info', confidence: 78,
-    headline: 'White T-Shirt demand up +34% — back-to-school wave detected',
+    headline: 'White T-Shirt demand up +34% - back-to-school wave detected',
     action: 'Hold or raise price 5–8% to capture seasonal margin.',
     icon: <TrendingUp size={11} />,
   },
   {
     id: 'e3', ms: NEWS_ITEMS[2].timestampMs, platformId: 'TGT', severity: 'warning', confidence: 71,
     headline: 'Target running Thu–Fri weekend promo cycle on 3 SKUs',
-    action: 'Wait for Mon reversion — do not reprice to match.',
+    action: 'Wait for Mon reversion - do not reprice to match.',
     icon: <Repeat2 size={11} />,
   },
   {
     id: 'e4', ms: NEWS_ITEMS[3].timestampMs, platformId: 'WMT', severity: 'warning', confidence: 91,
     headline: 'Walmart Clear Glasses drop is reactive price-match, not a campaign',
-    action: 'Hold at $24.99 for 4 days — 92% reversion rate expected.',
+    action: 'Hold at $24.99 for 4 days - 92% reversion rate expected.',
     icon: <Repeat2 size={11} />,
   },
   {
     id: 'e5', ms: NEWS_ITEMS[4].timestampMs, platformId: 'AMZ', severity: 'info', confidence: 54,
-    headline: 'Sneakers repriced 2× in 24h · 7× in 7d — possible pre-Prime Day signal',
+    headline: 'Sneakers repriced 2× in 24h · 7× in 7d - possible pre-Prime Day signal',
     action: 'Build inventory buffer. Plan counter-promo for late June.',
     icon: <Lightbulb size={11} />,
   },
@@ -56,14 +56,14 @@ const EVENTS: CompactEvent[] = [
   },
   {
     id: 'e7', ms: NEWS_ITEMS[6].timestampMs, platformId: null, severity: 'info', confidence: 82,
-    headline: 'Denim jeans entering May–Jun seasonal trough — Target\'s +12% is a margin grab',
+    headline: 'Denim jeans entering May–Jun seasonal trough - Target\'s +12% is a margin grab',
     action: 'Consider 10–15% reduction in June to sustain conversion.',
     icon: <Globe size={11} />,
   },
   {
     id: 'e8', ms: NEWS_ITEMS[7].timestampMs, platformId: 'WMT', severity: 'warning', confidence: 83,
     headline: 'Walmart Black Backpack price-match cascade: followed Amazon, 87% reversion rate',
-    action: 'Hold at $25.99 — both platforms at temporary floor. Reassess in 5d.',
+    action: 'Hold at $25.99 - both platforms at temporary floor. Reassess in 5d.',
     icon: <Repeat2 size={11} />,
   },
 ]
@@ -117,7 +117,7 @@ function ChangeFrequencyTable() {
                       {listing.changeCount24h}×
                     </span>
                     <span style={{ fontSize: 9, color: 'var(--mid)' }}>
-                      {listing.priceVelocity === 'falling' ? '↓' : listing.priceVelocity === 'rising' ? '↑' : '—'}
+                      {listing.priceVelocity === 'falling' ? '↓' : listing.priceVelocity === 'rising' ? '↑' : '-'}
                     </span>
                   </div>
                 </td>
@@ -168,7 +168,7 @@ export default function NewsIntelligence() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
 
-      {/* KPI strip — 3 boxes only */}
+      {/* KPI strip - 3 boxes only */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         {[
           { label: 'Critical Events',   value: critCount,  color: 'var(--accent)',  bg: 'var(--accent-soft)'  },

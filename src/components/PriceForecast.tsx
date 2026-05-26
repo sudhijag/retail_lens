@@ -143,6 +143,69 @@ const SECTION_HEADER_STYLE = { fontSize: 12, fontWeight: 600, color: 'var(--ink)
 const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
 const FORECAST_POINTS_PER_MONTH = 8
 
+// ── Quality complaint data ────────────────────────────────────────────────────
+
+interface ComplaintTheme {
+  theme:      string
+  severity:   'low' | 'medium' | 'high'
+  complaint:  string
+  pctMention: string
+}
+
+const COMPLAINTS: Record<string, ComplaintTheme[]> = {
+  'CLR-GLSS-001': [
+    { theme: 'Materials',    severity: 'medium', complaint: 'UV protection certification frequently asked about in Q&A', pctMention: '22%' },
+    { theme: 'Fit / Sizing', severity: 'medium', complaint: 'Frames too large for small faces - limited size range',     pctMention: '17%' },
+    { theme: 'Packaging',    severity: 'low',    complaint: 'Case quality below expectations at this price point',       pctMention: '11%' },
+  ],
+  'WHT-TEE-3340': [
+    { theme: 'Durability',     severity: 'high',   complaint: 'Significant shrinkage after first wash',              pctMention: '28%' },
+    { theme: 'Color Accuracy', severity: 'medium', complaint: 'Off-white vs. true white color discrepancy in photos', pctMention: '19%' },
+    { theme: 'Materials',      severity: 'medium', complaint: 'Collar loses shape after 5-6 washes',                 pctMention: '14%' },
+  ],
+  'WHT-SNK-2201': [
+    { theme: 'Durability',     severity: 'high',   complaint: 'Sole separation reported within 3 months of wear',    pctMention: '19%' },
+    { theme: 'Fit / Sizing',   severity: 'medium', complaint: 'Runs half a size large - inconsistent across sizes',  pctMention: '23%' },
+    { theme: 'Color Accuracy', severity: 'low',    complaint: 'Yellowing of white canvas with regular wear',         pctMention: '12%' },
+  ],
+  'BLK-BCK-0087': [
+    { theme: 'Durability',   severity: 'high',   complaint: 'Drawstring fraying at contact points within 6-8 weeks', pctMention: '24%' },
+    { theme: 'Materials',    severity: 'medium', complaint: 'Water bottle pocket missing - most requested feature',  pctMention: '21%' },
+    { theme: 'Fit / Sizing', severity: 'medium', complaint: 'Shoulder straps too thin - padding frequently requested', pctMention: '18%' },
+  ],
+  'DNM-JNS-4450': [
+    { theme: 'Color Accuracy', severity: 'high',   complaint: 'Color fading after 5-6 washes noted in buyer reviews', pctMention: '31%' },
+    { theme: 'Fit / Sizing',   severity: 'high',   complaint: 'Waist fits correctly but thigh fit too tight',          pctMention: '27%' },
+    { theme: 'Materials',      severity: 'medium', complaint: 'Tall/long inseam length options insufficient',          pctMention: '16%' },
+  ],
+}
+
+const SEVERITY_COLORS = {
+  high:   { color: '#d92d20',      bg: 'rgba(217,45,32,0.08)',  label: 'HIGH'   },
+  medium: { color: 'var(--amber)', bg: 'rgba(217,119,6,0.08)', label: 'MEDIUM' },
+  low:    { color: 'var(--mid)',   bg: 'var(--warm-white)',     label: 'LOW'    },
+} as const
+
+function ComplaintCard({ c }: { c: ComplaintTheme }) {
+  const cfg = SEVERITY_COLORS[c.severity]
+  const barPct = c.severity === 'high' ? '75%' : c.severity === 'medium' ? '48%' : '22%'
+  return (
+    <div style={{ padding: '11px 14px', background: 'white', border: '1px solid var(--border)', borderRadius: 8, borderLeft: `3px solid ${cfg.color}` }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, padding: '2px 5px', borderRadius: 3, background: cfg.bg, color: cfg.color, fontWeight: 700 }}>{cfg.label}</span>
+          <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ink)' }}>{c.theme}</span>
+        </div>
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: cfg.color, fontWeight: 700 }}>{c.pctMention} of 1-3★</span>
+      </div>
+      <div style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.5, marginBottom: 7 }}>{c.complaint}</div>
+      <div style={{ height: 3, background: 'var(--paper)', borderRadius: 2 }}>
+        <div style={{ height: '100%', width: barPct, background: cfg.color, borderRadius: 2 }} />
+      </div>
+    </div>
+  )
+}
+
 function ForecastCard({ label, price, changePct }: { label: string; price: number; changePct: number }) {
   const up    = changePct > 0.5
   const down  = changePct < -0.5
@@ -173,21 +236,21 @@ const TYPE_ICON: Record<string, string> = { design: '◈', feature: '⚙', mater
 
 // Expandable trend signal card with "what this means for your SKU"
 const SIGNAL_MEANINGS: Record<string, string[]> = {
-  'Bold Architectural Frames':       ['The category leader is surging — a bold-rim SKU would be a zero-cannibalization entry', 'Your clear oval frames now face differentiation pressure from geometric styles', 'Pricing pressure at $18–24 may increase as bold frames expand into the mid-market'],
-  'Blue-Light Blocking as Standard': ['Add blue-light blocking to your listing attributes to capture conversion at existing price', 'Customers expect this as baseline — not calling it out is a lost conversion', 'Can justify a $2–3 price increase as a perceived-value differentiator'],
-  'Sustainable Bio-Acetate':         ['Premium eco frames are creating a new $28–36 price tier in your category', 'A bio-acetate version of your SKU could hold margin while reducing volume-competition', 'Currently emerging — watch for 4-week velocity increase before committing'],
-  'Multi-Pack Value Format':         ['Your single-unit SKU is directly in the declining segment — multi-pack pivot is urgent', '3-pack at $24–26 would compete with the fastest-growing format in this category', 'Holding single-unit price at $14.99 while launching multi-pack is the optimal dual-track'],
-  'Heavyweight Cotton Premium':      ['$24+ premium singles are growing while $14 basics decline — an upgrade path is possible', 'Add GSM weight and quality signals to listing to justify a $16–18 price test', 'Heavyweight format protects margin while demand for basic singles compresses'],
-  'Performance-Blend Migration':     ['Moisture-wicking blends are eroding pure-cotton volumes — a cotton-poly variant hedges risk', 'Calling out fabric properties (breathable, moisture-managing) converts well at existing price', 'Pure cotton positioning is still valid but needs stronger lifestyle/everyday messaging'],
-  'Platform-Sole Elevation':         ['Your clean low-top is the base — a platform-sole variant is a natural ASP-expanding extension', 'Pricing at $42–46 for platform creates a premium tier without cannibalizing your current SKU', 'Enter before the trend peaks — 4+ weeks of runway remaining based on velocity'],
-  '"Quiet Luxury" White Sneaker':    ['You are the category leader in this trend — protect and hold price, do not discount', 'Lean into "minimalist" and "essential" messaging to capture the quiet-luxury search intent', 'This trend has structural staying power — invest in review velocity now while growth is high'],
-  'Wide-Toe Box Comfort Design':     ['A wide-fit variant at $34–38 captures health-conscious buyers without disrupting existing SKU', 'Add comfort and fit language to your current listing to improve conversion at $32.99', 'Emerging trend — monitor for 3+ weeks before committing to a new SKU'],
-  'Wet/Dry Compartment Gym Bag':     ['This is the #1 surging segment — a gym bag SKU would directly capture the fastest-growing buyer', 'Your drawstring is being pulled toward commodity; gym bag is the upgrade path', 'At $22–28 it is adjacent in price to your current SKU with 2.5× higher margin contribution'],
-  'Lightweight Packable Daypacks':   ['Travel-oriented buyers represent a growing segment abandoning drawstrings — packable fills the gap', 'A packable daypack at $26–32 can share manufacturing infrastructure with your current SKU', 'Emerging but not urgent — add to 6–9 month roadmap'],
-  'Sustainable / Recycled-RPET Bags':['RPET certification adds a $3–6 price premium on functionally equivalent products', 'Eco positioning protects against the commodity price race that is squeezing basic drawstrings', 'Investment in certification pays off in 12–18 months — start the sourcing process now'],
-  'Barrel-Leg / Relaxed-Taper':      ['Your straight-leg is a stable hold — but barrel-leg is the growth vector you are missing', 'Entry at $44–50 creates a premium tier with zero cannibalization of your $42.99 straight-leg', '5-week growth trend with 6–10 weeks of runway — enter in the next 3 weeks for best position'],
+  'Bold Architectural Frames':       ['The category leader is surging - a bold-rim SKU would be a zero-cannibalization entry', 'Your clear oval frames now face differentiation pressure from geometric styles', 'Pricing pressure at $18–24 may increase as bold frames expand into the mid-market'],
+  'Blue-Light Blocking as Standard': ['Add blue-light blocking to your listing attributes to capture conversion at existing price', 'Customers expect this as baseline - not calling it out is a lost conversion', 'Can justify a $2–3 price increase as a perceived-value differentiator'],
+  'Sustainable Bio-Acetate':         ['Premium eco frames are creating a new $28–36 price tier in your category', 'A bio-acetate version of your SKU could hold margin while reducing volume-competition', 'Currently emerging - watch for 4-week velocity increase before committing'],
+  'Multi-Pack Value Format':         ['Your single-unit SKU is directly in the declining segment - multi-pack pivot is urgent', '3-pack at $24–26 would compete with the fastest-growing format in this category', 'Holding single-unit price at $14.99 while launching multi-pack is the optimal dual-track'],
+  'Heavyweight Cotton Premium':      ['$24+ premium singles are growing while $14 basics decline - an upgrade path is possible', 'Add GSM weight and quality signals to listing to justify a $16–18 price test', 'Heavyweight format protects margin while demand for basic singles compresses'],
+  'Performance-Blend Migration':     ['Moisture-wicking blends are eroding pure-cotton volumes - a cotton-poly variant hedges risk', 'Calling out fabric properties (breathable, moisture-managing) converts well at existing price', 'Pure cotton positioning is still valid but needs stronger lifestyle/everyday messaging'],
+  'Platform-Sole Elevation':         ['Your clean low-top is the base - a platform-sole variant is a natural ASP-expanding extension', 'Pricing at $42–46 for platform creates a premium tier without cannibalizing your current SKU', 'Enter before the trend peaks - 4+ weeks of runway remaining based on velocity'],
+  '"Quiet Luxury" White Sneaker':    ['You are the category leader in this trend - protect and hold price, do not discount', 'Lean into "minimalist" and "essential" messaging to capture the quiet-luxury search intent', 'This trend has structural staying power - invest in review velocity now while growth is high'],
+  'Wide-Toe Box Comfort Design':     ['A wide-fit variant at $34–38 captures health-conscious buyers without disrupting existing SKU', 'Add comfort and fit language to your current listing to improve conversion at $32.99', 'Emerging trend - monitor for 3+ weeks before committing to a new SKU'],
+  'Wet/Dry Compartment Gym Bag':     ['This is the #1 surging segment - a gym bag SKU would directly capture the fastest-growing buyer', 'Your drawstring is being pulled toward commodity; gym bag is the upgrade path', 'At $22–28 it is adjacent in price to your current SKU with 2.5× higher margin contribution'],
+  'Lightweight Packable Daypacks':   ['Travel-oriented buyers represent a growing segment abandoning drawstrings - packable fills the gap', 'A packable daypack at $26–32 can share manufacturing infrastructure with your current SKU', 'Emerging but not urgent - add to 6–9 month roadmap'],
+  'Sustainable / Recycled-RPET Bags':['RPET certification adds a $3–6 price premium on functionally equivalent products', 'Eco positioning protects against the commodity price race that is squeezing basic drawstrings', 'Investment in certification pays off in 12–18 months - start the sourcing process now'],
+  'Barrel-Leg / Relaxed-Taper':      ['Your straight-leg is a stable hold - but barrel-leg is the growth vector you are missing', 'Entry at $44–50 creates a premium tier with zero cannibalization of your $42.99 straight-leg', '5-week growth trend with 6–10 weeks of runway - enter in the next 3 weeks for best position'],
   'Wide-Leg Relaxed Fit':            ['Wide-leg at $35–50 is growing strongly and is adjacent to your category position', 'Positioning your straight-leg as "the classic" vs wide-leg as "the trend" protects both segments', 'Launching wide-leg at $38–44 gives you two price points covering the growth segments'],
-  'Sustainable Denim (Water-Reduced)':['Eco-certified denim adds a $5–8 premium over conventional — significant for your current ASP', 'A water-reduced version of your straight-leg at $47–52 creates a premium tier without cannibalizing', 'Longer lead time (7–10 months) but the strongest margin-protection play in your category'],
+  'Sustainable Denim (Water-Reduced)':['Eco-certified denim adds a $5–8 premium over conventional - significant for your current ASP', 'A water-reduced version of your straight-leg at $47–52 creates a premium tier without cannibalizing', 'Longer lead time (7–10 months) but the strongest margin-protection play in your category'],
 }
 
 function getSignalMeanings(title: string): string[] {
@@ -552,6 +615,7 @@ export default function PriceForecast() {
 
       {/* ── Price Forecast Chart ── */}
       {fd && (
+        <div style={{ display: 'none' }}>
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 20px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div>
@@ -650,6 +714,7 @@ export default function PriceForecast() {
             </ResponsiveContainer>
           </div>
         </div>
+        </div>
       )}
 
       {/* ── Forecast Summary Cards ── */}
@@ -720,6 +785,14 @@ export default function PriceForecast() {
                       <div style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6 }}>{insight}</div>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+            {(COMPLAINTS[selectedSkuId] ?? []).length > 0 && (
+              <div>
+                <div style={{ marginBottom: 10, fontSize: 11, fontWeight: 600, color: 'var(--ink)', letterSpacing: '0.1px' }}>Quality Signals</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {(COMPLAINTS[selectedSkuId] ?? []).map((c, i) => <ComplaintCard key={i} c={c} />)}
                 </div>
               </div>
             )}

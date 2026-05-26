@@ -1,16 +1,18 @@
 'use client'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { BarChart2, Brain } from 'lucide-react'
+import { BarChart2, Brain, Truck } from 'lucide-react'
 
-const PriceIntel   = dynamic(() => import('../components/PriceIntel'),   { ssr: false })
+const PriceIntel    = dynamic(() => import('../components/PriceIntel'),    { ssr: false })
 const PriceForecast = dynamic(() => import('../components/PriceForecast'), { ssr: false })
+const DeliverySpeed = dynamic(() => import('../components/DeliverySpeed'), { ssr: false })
 
-type Tab = 'intel' | 'forecast'
+type Tab = 'intel' | 'forecast' | 'delivery'
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: 'intel',    label: 'Price Intelligence', icon: <BarChart2 size={13} />  },
-  { id: 'forecast', label: 'Predictive Analytics', icon: <Brain size={13} /> },
+  { id: 'intel',    label: 'Price Intelligence',          icon: <BarChart2 size={13} /> },
+  { id: 'forecast', label: 'Predictive Analytics',        icon: <Brain size={13} />     },
+  { id: 'delivery', label: 'Delivery Speed Intelligence', icon: <Truck size={13} />     },
 ]
 
 // ── App shell ─────────────────────────────────────────────────────────────────
@@ -76,6 +78,7 @@ export default function RetailLensApp() {
       <div className="dashboard-content" style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
         {activeTab === 'intel'    && <PriceIntel />}
         {activeTab === 'forecast' && <PriceForecast />}
+        {activeTab === 'delivery' && <DeliverySpeed />}
       </div>
     </div>
   )

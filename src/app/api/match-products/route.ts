@@ -40,7 +40,7 @@ async function runText(
 ): Promise<{ anchorDescription: string; scores: Record<string, number> }> {
   const list = candidates.map((c, i) => `Candidate ${i + 1} (ID: ${c.id}): "${c.title}"`).join('\n')
 
-  const prompt = `You are a retail product matching expert. Evaluate how semantically similar each candidate product is to the anchor — based on MEANING, not keyword overlap.
+  const prompt = `You are a retail product matching expert. Evaluate how semantically similar each candidate product is to the anchor - based on MEANING, not keyword overlap.
 
 ANCHOR: "${anchor.title}"
 
@@ -90,7 +90,7 @@ async function runVision(
 - 45–64: Same category, noticeable style differences
 - 0–44: Different appearance
 
-Image 1 — ANCHOR: "${anchor.title}"
+Image 1 - ANCHOR: "${anchor.title}"
 CANDIDATES:
 ${labels}
 

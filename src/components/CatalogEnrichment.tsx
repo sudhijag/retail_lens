@@ -154,7 +154,7 @@ export default function CatalogEnrichment() {
         </div>
       </div>
 
-      {/* Price gap analysis — always-on intelligence */}
+      {/* Price gap analysis - always-on intelligence */}
       <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ padding: '13px 18px 11px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6 }}>
           <AlertTriangle size={13} color="var(--amber)" />
@@ -200,7 +200,7 @@ export default function CatalogEnrichment() {
                   </td>
                   <td style={{ padding: '11px 18px', borderBottom: i < priceGaps.length - 1 ? '1px solid var(--border)' : 'none' }}>
                     <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 11, color: riskColor }}>
-                      {gap > 0 ? `~$${revenueRisk.toLocaleString()}` : '—'}
+                      {gap > 0 ? `~$${revenueRisk.toLocaleString()}` : '-'}
                     </span>
                   </td>
                   <td style={{ padding: '11px 18px', borderBottom: i < priceGaps.length - 1 ? '1px solid var(--border)' : 'none' }}>

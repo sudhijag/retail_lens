@@ -82,7 +82,7 @@ function MatchCell({ match, rank, mode }: { match: RankedMatch | null; rank: num
             <div style={{ fontSize: 9, color: 'var(--mid)', textAlign: 'center', lineHeight: 1.3 }}>below<br/>threshold</div>
           </>
         ) : (
-          <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>—</div>
+          <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>-</div>
         )}
       </div>
     )
@@ -92,7 +92,7 @@ function MatchCell({ match, rank, mode }: { match: RankedMatch | null; rank: num
   if (!match) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-        <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>—</div>
+        <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>-</div>
       </div>
     )
   }
@@ -115,7 +115,7 @@ function MatchCell({ match, rank, mode }: { match: RankedMatch | null; rank: num
         </span>
       </div>
 
-      {/* Product image — centered */}
+      {/* Product image - centered */}
       <div style={{ display: 'flex', justifyContent: 'center', padding: '0 8px', marginBottom: 6 }}>
         <div style={{ width: 78, height: 78, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border)', position: 'relative', background: 'var(--paper)', flexShrink: 0 }}>
           <Image src={match.product.imageUrl} alt={match.product.title} fill sizes="78px" style={{ objectFit: 'cover' }} unoptimized />
@@ -589,7 +589,7 @@ export default function ProductMatcher() {
         <div style={{ padding: '7px 14px', background: 'var(--blue-soft)', border: '1px solid #c0cfe0', borderRadius: 7, display: 'flex', alignItems: 'center', gap: 8 }}>
           <Brain size={11} color="var(--blue)" />
           <span style={{ fontSize: 11, color: 'var(--blue)' }}>
-            <strong>Preview mode</strong> — candidates ranked by price &amp; title similarity only (~scores). Click <strong>Run AI Matching</strong> to apply Claude semantic + visual scoring with the 70% confidence threshold.
+            <strong>Preview mode</strong> - candidates ranked by price &amp; title similarity only (~scores). Click <strong>Run AI Matching</strong> to apply Claude semantic + visual scoring with the 70% confidence threshold.
           </span>
         </div>
       )}
@@ -663,7 +663,7 @@ export default function ProductMatcher() {
                           No confident matches found on {comp.name}
                         </div>
                         <div style={{ fontSize: 10, color: 'var(--ink3)' }}>
-                          All {matches.length} catalog items scored below 70% for this SKU. Best: {Math.max(...matches.map(m => m.overall))}% — try a product in the same category as the {comp.name} catalog.
+                          All {matches.length} catalog items scored below 70% for this SKU. Best: {Math.max(...matches.map(m => m.overall))}% - try a product in the same category as the {comp.name} catalog.
                         </div>
                       </div>
                     </div>
@@ -729,7 +729,7 @@ export default function ProductMatcher() {
                 INTEGRATION PENDING
               </span>
               <span style={{ fontSize: 10, color: 'var(--ink3)' }}>
-                {comp.category} catalog not yet scraped — contact your RetailLens account manager to add {comp.name} to your monitored competitors.
+                {comp.category} catalog not yet scraped - contact your RetailLens account manager to add {comp.name} to your monitored competitors.
               </span>
             </div>
           </div>
@@ -751,10 +751,10 @@ export default function ProductMatcher() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '8px 16px', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8 }}>
         <span style={{ fontSize: 9, color: 'var(--ink3)', fontFamily: "'IBM Plex Mono', monospace", textTransform: 'uppercase', letterSpacing: '.5px' }}>Confidence</span>
         {[
-          { label: '90–100% — Verified match', color: 'var(--accent2)', bg: 'var(--accent2-soft)' },
-          { label: '80–89% — Strong match',    color: '#2a8a50',        bg: '#d4f0e0'             },
-          { label: '70–79% — Confident match', color: 'var(--amber)',   bg: '#fef6e3'             },
-          { label: '<70% — Below threshold',   color: 'var(--mid)',     bg: 'var(--paper)'        },
+          { label: '90–100% - Verified match', color: 'var(--accent2)', bg: 'var(--accent2-soft)' },
+          { label: '80–89% - Strong match',    color: '#2a8a50',        bg: '#d4f0e0'             },
+          { label: '70–79% - Confident match', color: 'var(--amber)',   bg: '#fef6e3'             },
+          { label: '<70% - Below threshold',   color: 'var(--mid)',     bg: 'var(--paper)'        },
         ].map(l => (
           <div key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
             <div style={{ width: 10, height: 5, borderRadius: 3, background: l.color }} />
@@ -762,7 +762,7 @@ export default function ProductMatcher() {
           </div>
         ))}
         <div style={{ marginLeft: 'auto', fontSize: 9, color: 'var(--ink3)', fontFamily: "'IBM Plex Mono', monospace" }}>
-          {hasAiScores ? 'Scores: 35% attribute + 35% AI text + 30% AI vision' : 'Scores: attribute similarity only — run AI for full analysis'}
+          {hasAiScores ? 'Scores: 35% attribute + 35% AI text + 30% AI vision' : 'Scores: attribute similarity only - run AI for full analysis'}
         </div>
       </div>
     </div>

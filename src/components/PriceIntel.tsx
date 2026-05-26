@@ -79,6 +79,85 @@ const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)'
 const tok = (s: string) => s.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP.has(w))
 const fmt = (n: number) => `$${n.toFixed(2)}`
 
+// ── Assortment coverage data ──────────────────────────────────────────────────
+
+type Coverage = 'offered' | 'partial' | 'gap'
+
+interface AssortmentRow {
+  variant:  string
+  velocity: number
+  AMZ: Coverage
+  WMT: Coverage
+  TGT: Coverage
+  YOU: Coverage
+}
+
+const ASSORTMENT: Record<string, AssortmentRow[]> = {
+  'CLR-GLSS-001': [
+    { variant: 'Bold thick-rim acetate',    velocity:  67, AMZ: 'offered', WMT: 'offered', TGT: 'partial', YOU: 'gap'     },
+    { variant: 'Clear oval acetate',        velocity:  28, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'offered' },
+    { variant: 'Geometric wire-rim',        velocity:  34, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Blue-light blocking',       velocity:  19, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Oversized tortoiseshell',   velocity:  -8, AMZ: 'offered', WMT: 'partial', TGT: 'partial', YOU: 'gap'     },
+  ],
+  'WHT-TEE-3340': [
+    { variant: 'Multi-pack format (3-6pk)', velocity:  41, AMZ: 'offered', WMT: 'offered', TGT: 'partial', YOU: 'gap'     },
+    { variant: 'Heavyweight premium cotton',velocity:  22, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Performance moisture-wick', velocity:  18, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Sustainable organic cotton',velocity:  14, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Basic single-unit standard',velocity:  -8, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'offered' },
+  ],
+  'WHT-SNK-2201': [
+    { variant: 'Platform-sole elevated',    velocity:  44, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Quiet luxury minimalist',   velocity:  31, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'offered' },
+    { variant: 'Wide-toe box comfort',      velocity:  27, AMZ: 'offered', WMT: 'offered', TGT: 'partial', YOU: 'gap'     },
+    { variant: 'Canvas slip-on',            velocity:  12, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Leather low-top',           velocity:   8, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+  ],
+  'BLK-BCK-0087': [
+    { variant: 'Wet/dry gym compartment',   velocity:  52, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Lightweight packable',      velocity:  29, AMZ: 'offered', WMT: 'partial', TGT: 'partial', YOU: 'gap'     },
+    { variant: 'Sustainable RPET recycled', velocity:  21, AMZ: 'offered', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Basic drawstring single',   velocity:  -6, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'offered' },
+    { variant: 'Multi-pocket tactical',     velocity:   9, AMZ: 'offered', WMT: 'offered', TGT: 'partial', YOU: 'gap'     },
+  ],
+  'DNM-JNS-4450': [
+    { variant: 'Barrel-leg relaxed-taper',  velocity:  48, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Wide-leg relaxed fit',      velocity:  36, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Sustainable water-reduced', velocity:  18, AMZ: 'partial', WMT: 'partial', TGT: 'offered', YOU: 'gap'     },
+    { variant: 'Straight-leg classic',      velocity:  -4, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'offered' },
+    { variant: 'Slim stretch fit',          velocity:   6, AMZ: 'offered', WMT: 'offered', TGT: 'offered', YOU: 'gap'     },
+  ],
+}
+
+function CoverageCell({ coverage, isYours }: { coverage: Coverage; isYours: boolean }) {
+  if (coverage === 'offered') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <div style={{ width: 16, height: 16, borderRadius: '50%', background: 'rgba(5,150,105,0.12)', border: '1.5px solid var(--accent2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent2)' }} />
+        </div>
+        {isYours && <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: 'var(--accent2)', fontWeight: 700 }}>YOUR SKU</span>}
+      </div>
+    )
+  }
+  if (coverage === 'partial') {
+    return (
+      <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#fef6e3', border: '1.5px solid var(--amber)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 6, height: 3, borderRadius: 2, background: 'var(--amber)' }} />
+      </div>
+    )
+  }
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+      <span style={{ fontSize: 13, color: 'var(--mid)', opacity: 0.3 }}>-</span>
+      {isYours && (
+        <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 7, color: '#d92d20', background: 'rgba(217,45,32,0.1)', padding: '1px 4px', borderRadius: 2, fontWeight: 700 }}>MISSING</span>
+      )}
+    </div>
+  )
+}
+
 function computeAttrScore(product: Product, scraped: ScrapedListing): number {
   let score = 0
   let weight = 0
@@ -394,7 +473,7 @@ function MatchCell({
   if (!match) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-        <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>—</div>
+        <div style={{ fontSize: 10, color: 'var(--border2)', fontFamily: "'IBM Plex Mono', monospace" }}>-</div>
       </div>
     )
   }
@@ -1148,6 +1227,72 @@ export default function PriceIntel() {
           </div>
         </div>
       </div>
+
+      {/* ── Assortment Coverage Matrix ── */}
+      {(() => {
+        const assortment = ASSORTMENT[selectedSkuId] ?? []
+        if (!assortment.length) return null
+        const gapCount = assortment.filter(r => r.YOU === 'gap').length
+        const missingVelocity = assortment.filter(r => r.YOU === 'gap' && r.velocity > 0).reduce((s, r) => s + r.velocity, 0)
+        return (
+          <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
+            <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <div style={SECTION_HEADER_STYLE}>Assortment Coverage</div>
+                <div style={SECTION_SUBTITLE_STYLE}>Variant segments your competitors carry vs. your current catalog. Missing high-velocity segments represent lost revenue share.</div>
+              </div>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: '#d92d20', fontWeight: 700 }}>{gapCount} GAPS</span>
+                {missingVelocity > 0 && (
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, color: 'var(--accent2)', fontWeight: 700 }}>+{missingVelocity}% combined velocity in gaps</span>
+                )}
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '200px 72px repeat(4, 1fr)', background: 'var(--warm-white)', borderBottom: '1px solid var(--border)' }}>
+              <div style={{ padding: '9px 16px' }} />
+              <div style={{ padding: '9px 6px', textAlign: 'center', borderLeft: '1px solid var(--border)' }}>
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 8, fontWeight: 700, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>Velocity</span>
+              </div>
+              {(['AMZ', 'WMT', 'TGT', 'YOU'] as const).map(pid => (
+                <div key={pid} style={{ padding: '9px 8px', textAlign: 'center', borderLeft: '1px solid var(--border)' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, fontWeight: 700, color: pid === 'YOU' ? 'var(--accent)' : 'var(--ink)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    {pid === 'YOU' ? 'You' : pid === 'AMZ' ? 'Amazon' : pid === 'WMT' ? 'Walmart' : 'Target'}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {assortment.map((row, rowIdx) => (
+              <div key={rowIdx} style={{ display: 'grid', gridTemplateColumns: '200px 72px repeat(4, 1fr)', borderBottom: rowIdx < assortment.length - 1 ? '1px solid var(--border)' : 'none', background: row.YOU === 'offered' ? 'rgba(37,99,235,0.02)' : 'transparent' }}>
+                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center' }}>
+                  <span style={{ fontSize: 12, color: 'var(--ink2)', fontWeight: row.YOU === 'offered' ? 600 : 400 }}>{row.variant}</span>
+                </div>
+                <div style={{ padding: '12px 6px', borderLeft: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, fontWeight: 700, color: row.velocity > 20 ? 'var(--accent2)' : row.velocity > 0 ? 'var(--amber)' : '#d92d20' }}>
+                    {row.velocity > 0 ? '+' : ''}{row.velocity}%
+                  </span>
+                </div>
+                {(['AMZ', 'WMT', 'TGT', 'YOU'] as const).map(pid => (
+                  <div key={pid} style={{ padding: '12px 8px', textAlign: 'center', borderLeft: '1px solid var(--border)', background: pid === 'YOU' && row[pid] === 'gap' ? 'rgba(217,45,32,0.03)' : pid === 'YOU' ? 'rgba(37,99,235,0.04)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <CoverageCell coverage={row[pid]} isYours={pid === 'YOU'} />
+                  </div>
+                ))}
+              </div>
+            ))}
+            <div style={{ padding: '9px 16px', borderTop: '1px solid var(--border)', background: 'var(--warm-white)', display: 'flex', gap: 18 }}>
+              {([
+                { coverage: 'offered' as Coverage, label: 'Offered' },
+                { coverage: 'partial' as Coverage, label: 'Partial / Limited' },
+                { coverage: 'gap'     as Coverage, label: 'Not in catalog' },
+              ]).map(({ coverage, label }) => (
+                <div key={coverage} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <CoverageCell coverage={coverage} isYours={false} />
+                  <span style={{ fontSize: 10, color: 'var(--ink3)' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 }

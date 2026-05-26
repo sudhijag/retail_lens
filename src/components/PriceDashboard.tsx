@@ -66,14 +66,14 @@ export default function PriceDashboard({ product, liveMultipliers }: Props) {
     if (summary.yourRank === 1) {
       recs.push({
         icon: <Zap size={13} />, color: '#1a6b3c', bg: '#e8f5ed',
-        text: 'You are the most price-competitive across all tracked platforms. Strong position — monitor for margin opportunity.',
+        text: 'You are the most price-competitive across all tracked platforms. Strong position - monitor for margin opportunity.',
       })
     }
     const promoCount = PLATFORMS.filter(p => product.listings[p.id].promoLabel).length
     if (promoCount > 0) {
       recs.push({
         icon: <TrendingDown size={13} />, color: '#c87d0a', bg: '#fef6e3',
-        text: `${promoCount} platform${promoCount > 1 ? 's' : ''} currently showing promotional pricing. Likely temporary — hold or set a time-bound counter-promo.`,
+        text: `${promoCount} platform${promoCount > 1 ? 's' : ''} currently showing promotional pricing. Likely temporary - hold or set a time-bound counter-promo.`,
       })
     }
     return recs
@@ -153,7 +153,7 @@ export default function PriceDashboard({ product, liveMultipliers }: Props) {
                     )}
                   </div>
 
-                  {/* Product thumbnail — platform-specific if available */}
+                  {/* Product thumbnail - platform-specific if available */}
                   <div style={{
                     width: '100%', height: 72, borderRadius: 6, overflow: 'hidden',
                     background: 'var(--warm-white)', border: '1px solid var(--border)',
@@ -195,7 +195,7 @@ export default function PriceDashboard({ product, liveMultipliers }: Props) {
                       color: diff < 0 ? 'var(--accent2)' : diff > 0 ? 'var(--accent)' : 'var(--mid)',
                       display: 'inline-flex', alignItems: 'center', gap: 2,
                     }}>
-                      {diff === 0 ? '—' : diff < 0
+                      {diff === 0 ? '-' : diff < 0
                         ? <><TrendingDown size={9} />{pct(diffPct)} vs yours</>
                         : <><TrendingUp size={9} />{pct(diffPct)} vs yours</>
                       }
@@ -267,7 +267,7 @@ export default function PriceDashboard({ product, liveMultipliers }: Props) {
         </div>
       </div>
 
-      {/* Market Position — horizontal strip */}
+      {/* Market Position - horizontal strip */}
       <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ padding: '13px 18px 11px', borderBottom: '1px solid var(--border)' }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Market Position</span>

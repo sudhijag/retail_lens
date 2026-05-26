@@ -47,17 +47,17 @@ const FALLBACKS: Record<string, Omit<ForecastIntelResponse, 'mode'>> = {
     priceRationale: 'Fashion eyewear is in a sustained growth cycle, driven by work-from-home screen-time awareness and social media visibility of eyewear as an accessory. Supply-chain normalization has reduced cost pressure, allowing gradual ASP expansion.',
     trendSignals: [
       { title: 'Bold Architectural Frames', description: 'Thick-rim geometric and hexagonal acetate frames are dominating social discovery, up significantly since early 2025.', strength: 'strong', type: 'design', velocityPct: 67 },
-      { title: 'Blue-Light Blocking as Standard', description: 'Customers now expect anti-blue-light coating as a default feature, not an add-on — shifting segment ASPs upward.', strength: 'strong', type: 'feature', velocityPct: 41 },
+      { title: 'Blue-Light Blocking as Standard', description: 'Customers now expect anti-blue-light coating as a default feature, not an add-on - shifting segment ASPs upward.', strength: 'strong', type: 'feature', velocityPct: 41 },
       { title: 'Sustainable Bio-Acetate', description: 'Plant-based acetate frames are gaining traction in premium positioning, with growing review sentiment around eco-credentials.', strength: 'moderate', type: 'material', velocityPct: 28 },
     ],
     nextSkuPredictions: [
-      { name: 'Clip-On Lens System', description: 'Interchangeable magnetic clip-on lenses for prescription frames — customers frequently request the ability to switch from clear to tinted.', confidence: 'high', priceRange: '$28–$45', timeToMarket: '3–5 months', rationale: 'Review analysis of eyewear shows "wish I could add sun lenses" as a top-5 feature request.' },
+      { name: 'Clip-On Lens System', description: 'Interchangeable magnetic clip-on lenses for prescription frames - customers frequently request the ability to switch from clear to tinted.', confidence: 'high', priceRange: '$28–$45', timeToMarket: '3–5 months', rationale: 'Review analysis of eyewear shows "wish I could add sun lenses" as a top-5 feature request.' },
       { name: 'Oversized Retro Cat-Eye (Unisex)', description: 'Wide-frame cat-eye silhouettes are transitioning from niche to mainstream driven by Gen-Z style adoption.', confidence: 'medium', priceRange: '$22–$34', timeToMarket: '5–8 months', rationale: 'Social trend velocity and search volume data point to breakout within 2 quarters.' },
     ],
     reviewInsights: [
-      'Customers consistently request better case quality — the frame is praised but cases feel "cheap for the price"',
+      'Customers consistently request better case quality - the frame is praised but cases feel "cheap for the price"',
       'UV protection certification is frequently asked about; explicitly calling it out in listings drives conversion',
-      '"Fits comfortably all day" is the #1 praised attribute — comfort messaging should lead product copy',
+      '"Fits comfortably all day" is the #1 praised attribute - comfort messaging should lead product copy',
     ],
   },
 
@@ -74,9 +74,9 @@ const FALLBACKS: Record<string, Omit<ForecastIntelResponse, 'mode'>> = {
       { name: 'Recycled-Cotton Eco Tee', description: 'A single eco-positioned tee at $18–22 using recycled cotton blends, targeting sustainability-driven shoppers willing to pay a premium.', confidence: 'medium', priceRange: '$18–$22', timeToMarket: '6–9 months', rationale: 'Growing sustainability search queries; margin-protective premium positioning.' },
     ],
     reviewInsights: [
-      'Shrinkage after first wash is the top complaint — pre-shrunk or shrink-resistant claims strongly improve retention',
+      'Shrinkage after first wash is the top complaint - pre-shrunk or shrink-resistant claims strongly improve retention',
       'Customers want better collar durability; reviews mention "collar waves after 3 washes"',
-      '"True white" vs "off-white" is a frequent complaint — color accuracy in listing photos drives returns',
+      '"True white" vs "off-white" is a frequent complaint - color accuracy in listing photos drives returns',
     ],
   },
 
@@ -89,12 +89,12 @@ const FALLBACKS: Record<string, Omit<ForecastIntelResponse, 'mode'>> = {
       { title: 'Wide-Toe Box Comfort Design', description: 'Reviews increasingly mention foot-width comfort; wide-fit and relaxed-toe styles are gaining traction as health-conscious consumers prioritize fit.', strength: 'emerging', type: 'feature', velocityPct: 19 },
     ],
     nextSkuPredictions: [
-      { name: 'Platform Canvas Low-Top (+1" Sole)', description: 'A platform version of the existing clean low-top at $42–46 — same upper silhouette, elevated sole stack. Zero cannibalization.', confidence: 'high', priceRange: '$40–$46', timeToMarket: '3–5 months', rationale: 'You own the #1 clean-canvas position; platform extension captures the adjacent surging segment.' },
+      { name: 'Platform Canvas Low-Top (+1" Sole)', description: 'A platform version of the existing clean low-top at $42–46 - same upper silhouette, elevated sole stack. Zero cannibalization.', confidence: 'high', priceRange: '$40–$46', timeToMarket: '3–5 months', rationale: 'You own the #1 clean-canvas position; platform extension captures the adjacent surging segment.' },
       { name: 'Slip-On Canvas Mule', description: 'Backless slip-on canvas style trending in warm-weather markets. Laceless convenience is a frequently requested feature in reviews.', confidence: 'medium', priceRange: '$28–$36', timeToMarket: '5–7 months', rationale: 'Easy sourcing extension; fills the convenience gap between your current SKU and sandal alternatives.' },
     ],
     reviewInsights: [
-      'Sole durability is the top critique — "sole separates after 6 months" appears frequently; extended sole warranty messaging converts well',
-      'Customers praise the "true-to-size" fit and specifically recommend it to friends — referral language should be encouraged in packaging',
+      'Sole durability is the top critique - "sole separates after 6 months" appears frequently; extended sole warranty messaging converts well',
+      'Customers praise the "true-to-size" fit and specifically recommend it to friends - referral language should be encouraged in packaging',
       'Cleaning instructions are frequently requested; a simple removable insole and washable design are top feature requests',
     ],
   },
@@ -112,9 +112,9 @@ const FALLBACKS: Record<string, Omit<ForecastIntelResponse, 'mode'>> = {
       { name: 'RPET Eco Packable Daypack', description: 'A lightweight 15L daypack made from recycled plastic bottles, packable into its own pocket, targeting eco-conscious commuters.', confidence: 'medium', priceRange: '$26–$34', timeToMarket: '6–9 months', rationale: 'Certification-backed eco claims protect margin and differentiate from commodity imports.' },
     ],
     reviewInsights: [
-      '"Straps are too thin and cut into shoulders" — padded shoulder straps are the single most requested upgrade',
-      'Side water bottle pockets are frequently mentioned as missing — customers "just want one pocket that works"',
-      '"Falls apart at the drawstring after a month" — reinforced cord threading is a key reliability differentiator',
+      '"Straps are too thin and cut into shoulders" - padded shoulder straps are the single most requested upgrade',
+      'Side water bottle pockets are frequently mentioned as missing - customers "just want one pocket that works"',
+      '"Falls apart at the drawstring after a month" - reinforced cord threading is a key reliability differentiator',
     ],
   },
 
@@ -131,9 +131,9 @@ const FALLBACKS: Record<string, Omit<ForecastIntelResponse, 'mode'>> = {
       { name: 'Water-Reduced Sustainable Straight-Leg', description: 'An eco-certified version of the existing straight-leg using 50% less water in washing, with a $47–52 premium positioning.', confidence: 'medium', priceRange: '$46–$52', timeToMarket: '7–10 months', rationale: 'Protects the straight-leg segment from ASP erosion with a value-added eco premium.' },
     ],
     reviewInsights: [
-      '"Fades too quickly after washing" — color retention is the most-cited quality complaint; reinforcing dye process is a key differentiator',
+      '"Fades too quickly after washing" - color retention is the most-cited quality complaint; reinforcing dye process is a key differentiator',
       'Inseam length options are frequently requested; customers want tall/short inseam choices without going to custom',
-      '"Fits perfectly in the waist but tight in the thighs" — a relaxed-hip version of the straight-leg is the top product evolution request',
+      '"Fits perfectly in the waist but tight in the thighs" - a relaxed-hip version of the straight-leg is the top product evolution request',
     ],
   },
 }
@@ -155,8 +155,8 @@ function getFallback(body: ForecastIntelRequest): ForecastIntelResponse {
       { name: 'Bundle / Multi-Pack Format', description: 'A multi-unit bundle format reducing the per-unit cost while increasing basket size.', confidence: 'medium', priceRange: `$${(body.currentPrice * 2.2).toFixed(0)}–$${(body.currentPrice * 2.8).toFixed(0)}`, timeToMarket: '2–3 months', rationale: 'Bundle formats improve repeat purchase rate and reduce return rates.' },
     ],
     reviewInsights: [
-      'Quality consistency is the top concern — customers want the product to match the listing photos exactly',
-      'Packaging quality signals product quality — improved unboxing experience reduces return intent',
+      'Quality consistency is the top concern - customers want the product to match the listing photos exactly',
+      'Packaging quality signals product quality - improved unboxing experience reduces return intent',
       'Clear use-case guidance in listings reduces "not what I expected" returns by 15–20%',
     ],
     mode: 'fallback',
@@ -184,9 +184,9 @@ Based on your retail market knowledge, provide a comprehensive price and product
 Return ONLY a valid JSON object with exactly this structure (no markdown, no explanation outside the JSON):
 {
   "priceDirection": "up" | "down" | "stable",
-  "priceChange3M": <number — percentage change at 3 months, e.g. 2.5 for +2.5%>,
-  "priceChange6M": <number — percentage change at 6 months>,
-  "priceChange12M": <number — percentage change at 12 months>,
+  "priceChange3M": <number - percentage change at 3 months, e.g. 2.5 for +2.5%>,
+  "priceChange6M": <number - percentage change at 6 months>,
+  "priceChange12M": <number - percentage change at 12 months>,
   "priceRationale": "<2–3 sentences explaining the price forecast, citing market forces>",
   "trendSignals": [
     {
@@ -194,7 +194,7 @@ Return ONLY a valid JSON object with exactly this structure (no markdown, no exp
       "description": "<1–2 sentence description of the trend and why it matters>",
       "strength": "strong" | "moderate" | "emerging",
       "type": "design" | "feature" | "material" | "consumer",
-      "velocityPct": <integer — estimated % growth in consumer interest>
+      "velocityPct": <integer - estimated % growth in consumer interest>
     }
   ],
   "nextSkuPredictions": [
@@ -208,7 +208,7 @@ Return ONLY a valid JSON object with exactly this structure (no markdown, no exp
     }
   ],
   "reviewInsights": [
-    "<insight 1 — what customers say they wish was different or better>",
+    "<insight 1 - what customers say they wish was different or better>",
     "<insight 2>",
     "<insight 3>"
   ]

@@ -25,7 +25,7 @@ const APPROVAL_CONFIG: Record<DeptApproval['status'], { color: string; bg: strin
   approved:     { color: 'var(--accent2)',bg: 'var(--accent2-soft)', label: 'Approved',      icon: <CheckCircle size={12} /> },
   flagged:      { color: 'var(--accent)', bg: 'var(--accent-soft)',  label: 'Flagged',       icon: <AlertTriangle size={12}/> },
   auto_approved:{ color: '#10b981',       bg: '#d1fae5',             label: 'Auto-approved', icon: <Zap size={12} />         },
-  na:           { color: 'var(--sand)',   bg: 'var(--paper)',        label: 'N/A',           icon: <span style={{fontSize:10}}>—</span> },
+  na:           { color: 'var(--sand)',   bg: 'var(--paper)',        label: 'N/A',           icon: <span style={{fontSize:10}}>-</span> },
 }
 
 const DEPT_ICONS: Record<DeptId, React.ReactNode> = {
@@ -387,7 +387,7 @@ export default function SyncHub() {
       <div style={{ padding: '12px 16px', background: 'var(--warm-white)', border: '1px solid var(--border)', borderRadius: 8, display: 'flex', gap: 10 }}>
         <GitPullRequest size={13} color="var(--mid)" style={{ marginTop: 1, flexShrink: 0 }} />
         <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.6 }}>
-          <strong style={{ color: 'var(--ink2)' }}>How it works:</strong> Every price change — whether triggered by a competitor move, marketing promotion, or inventory signal — flows through a cross-functional approval chain. Marketing checks campaign alignment, Finance validates margin impact, Supply Chain confirms inventory readiness, Legal verifies MAP compliance, and Category Management reviews strategic positioning. Blocking departments must approve before the price goes live. Click <strong style={{ color: 'var(--ink2)' }}>Approve</strong> on any pending department card above to simulate real-time sign-off.
+          <strong style={{ color: 'var(--ink2)' }}>How it works:</strong> Every price change - whether triggered by a competitor move, marketing promotion, or inventory signal - flows through a cross-functional approval chain. Marketing checks campaign alignment, Finance validates margin impact, Supply Chain confirms inventory readiness, Legal verifies MAP compliance, and Category Management reviews strategic positioning. Blocking departments must approve before the price goes live. Click <strong style={{ color: 'var(--ink2)' }}>Approve</strong> on any pending department card above to simulate real-time sign-off.
         </div>
       </div>
     </div>

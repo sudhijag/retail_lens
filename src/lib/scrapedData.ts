@@ -179,7 +179,7 @@ export const SCRAPED_DATA_BY_SKU: Record<string, ScrapedSkuCards> = {
           id: 'wmt-1',
           platform: 'WMT',
           rank: 1,
-          title: 'Gildan Adult Short Sleeve Crew T-Shirt for Crafting White — Soft Cotton Classic Fit 1-Pack Blank Tee',
+          title: 'Gildan Adult Short Sleeve Crew T-Shirt for Crafting White - Soft Cotton Classic Fit 1-Pack Blank Tee',
           brand: 'Gildan',
           imageUrl: 'https://i5.walmartimages.com/seo/Gildan-Adult-Short-Sleeve-Crew-T-Shirt-for-Crafting-White-Adult-Sizes-S-3XL-Soft-Cotton-Classic-Fit-1-Pack-Blank-Tee_13a02b89-79fd-4938-a08f-fddd03a98579.05b829aada1c548268853fd6bfb5b2f1.jpeg?odnHeight=864&odnWidth=576&odnBg=FFFFFF',
           rating: 3.0,
@@ -614,7 +614,7 @@ export function getScrapedProductsForSku(skuId: string): ScrapedListing[] {
 
 export const SCRAPED_PRODUCTS = getScrapedProductsForSku(DEFAULT_SCRAPED_SKU_ID)
 
-// The Hanes crewneck undershirt appears across all three platforms — a natural match candidate
+// The Hanes crewneck undershirt appears across all three platforms - a natural match candidate
 export const MATCH_CANDIDATES = {
   amazon: SCRAPED_PRODUCTS.find(p => p.id === 'amz-1')!,
   target: SCRAPED_PRODUCTS.find(p => p.id === 'tgt-5')!,

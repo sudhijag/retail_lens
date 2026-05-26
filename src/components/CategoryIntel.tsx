@@ -62,7 +62,7 @@ function PlatformFill({ platform, cx, cy, r }: { platform: string; cx: number; c
       </>
     )
   }
-  // WMT — blue + 6-arm spark (3 lines at 0°/60°/120°)
+  // WMT - blue + 6-arm spark (3 lines at 0°/60°/120°)
   return (
     <>
       <circle cx={cx} cy={cy} r={r} fill="#0071dc" />

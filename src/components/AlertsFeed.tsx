@@ -50,7 +50,7 @@ const SYNTHETIC_ALERTS: Omit<Alert, 'id' | 'timestamp' | 'isNew'>[] = [
     productName: 'Black Nylon Backpack',
     platformId: 'TGT',
     message: 'New Target listing matches BLK-BCK-0087',
-    detail: 'Target listing #TGT-BG-9134 identified — 82% visual match. Priced at $24.99 vs your $25.99.',
+    detail: 'Target listing #TGT-BG-9134 identified - 82% visual match. Priced at $24.99 vs your $25.99.',
     severity: 'info',
     actionLabel: 'Confirm Match',
   },

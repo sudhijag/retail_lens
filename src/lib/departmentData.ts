@@ -80,7 +80,7 @@ export const INITIAL_PCRS: PriceChangeRequest[] = [
     departments: {
       marketing:     mkDept('approved',      'Jordan Lee',      'JL', false, [{ label: 'Campaign Alignment', value: 'Q2 Eyewear Push', status: 'good' }, { label: 'Promo Budget', value: '$0 organic', status: 'good' }, { label: 'Brand Risk', value: 'Low', status: 'good' }], 'Aligned with Q2 eyewear push. No promo budget needed.', now - 1000 * 60 * 6),
       finance:       mkDept('reviewing',     'Rahul M.',        'RM', true,  [{ label: 'Gross Margin Before', value: '38.0%', status: 'good' }, { label: 'Gross Margin After', value: '28.8%', status: 'warn' }, { label: 'Daily Revenue Delta', value: '-$192', status: 'warn' }, { label: 'Break-even Delta', value: '+31%', status: 'warn' }], 'Margin drops 38% to 29%. Need VP sign-off below 30% floor.', now - 1000 * 60 * 3),
-      supply_chain:  mkDept('approved',      'Dana K.',         'DK', false, [{ label: 'Current Stock', value: '1,840 units', status: 'good' }, { label: 'Demand Lift Est.', value: '+40%', status: 'warn' }, { label: 'Days of Supply', value: '14.2 days', status: 'good' }, { label: 'Reorder Lead', value: '10 days', status: 'good' }], 'Stock 1,840 units. At +40% demand lift, 14 days supply — safe.', now - 1000 * 60 * 5),
+      supply_chain:  mkDept('approved',      'Dana K.',         'DK', false, [{ label: 'Current Stock', value: '1,840 units', status: 'good' }, { label: 'Demand Lift Est.', value: '+40%', status: 'warn' }, { label: 'Days of Supply', value: '14.2 days', status: 'good' }, { label: 'Reorder Lead', value: '10 days', status: 'good' }], 'Stock 1,840 units. At +40% demand lift, 14 days supply - safe.', now - 1000 * 60 * 5),
       legal:         mkDept('auto_approved', 'Compliance Bot',  'CB', true,  [{ label: 'MAP Minimum', value: '$18.50', status: 'good' }, { label: 'Proposed Price', value: '$20.99', status: 'good' }, { label: 'MAP Status', value: 'Compliant', status: 'good' }], '$20.99 above MAP of $18.50. Auto-approved.', now - 1000 * 60 * 7),
       category_mgmt: mkDept('approved',      'Tara B.',         'TB', false, [{ label: 'Category Share', value: '8.2% to 11.4%', status: 'good' }, { label: 'Market Rank', value: '#4 to #2', status: 'good' }, { label: 'Strategic Fit', value: 'High', status: 'good' }], 'Eyewear losing share to Walmart. $20.99 positions us at #2.', now - 1000 * 60 * 7),
     },
@@ -134,7 +134,7 @@ export const INITIAL_PCRS: PriceChangeRequest[] = [
       legal:         mkDept('flagged',   'Alex R.',        'AR', true,  [{ label: 'MAP Min (Target)', value: '$31.00', status: 'bad' }, { label: 'Proposed Price', value: '$29.99', status: 'bad' }, { label: 'MAP Status', value: 'VIOLATION', status: 'bad' }, { label: 'Action Required', value: 'MAP waiver needed', status: 'warn' }], '$29.99 violates Target channel MAP of $31.00. BLOCKED.', now - 1000 * 60 * 78),
       category_mgmt: mkDept('reviewing', 'Tara B.',        'TB', false, [{ label: 'Price Anchor Risk', value: 'High', status: 'warn' }, { label: 'Alternative', value: 'Bundle offer?', status: 'neutral' }], 'Concerned this sets a low price anchor. Reviewing bundle alternatives.'),
     },
-    notes: ['BLOCKED: Legal — MAP violation ($29.99 < $31.00 Target minimum).', 'FLAGGED: Finance — margin 6.1% below 10% floor.', 'Next: request MAP waiver from Target buyer (est. 3-5 business days).'],
+    notes: ['BLOCKED: Legal - MAP violation ($29.99 < $31.00 Target minimum).', 'FLAGGED: Finance - margin 6.1% below 10% floor.', 'Next: request MAP waiver from Target buyer (est. 3-5 business days).'],
   },
   {
     id: 'pcr-004',
@@ -153,13 +153,13 @@ export const INITIAL_PCRS: PriceChangeRequest[] = [
     initiatingDept: 'supply_chain',
     overallStatus: 'in_review',
     departments: {
-      marketing:     mkDept('na',           'N/A',            '—',  false, [{ label: 'Involvement', value: 'Not Required', status: 'neutral' }]),
+      marketing:     mkDept('na',           'N/A',            '-',  false, [{ label: 'Involvement', value: 'Not Required', status: 'neutral' }]),
       finance:       mkDept('pending',      'Rahul M.',       'RM', true,  [{ label: 'Gross Margin After', value: '15.2%', status: 'warn' }, { label: 'Recovery vs Write-off', value: '+$5,400', status: 'good' }]),
       supply_chain:  mkDept('approved',     'Dana K.',        'DK', false, [{ label: 'Aging Units', value: '612 at 180d+', status: 'bad' }, { label: 'Write-off Cost', value: '$9,100', status: 'bad' }, { label: 'Recovery Est.', value: '$11,600 via eBay', status: 'good' }], '612 units at 180+ days. eBay liquidation preferred over write-off.', now - 1000 * 60 * 178),
       legal:         mkDept('auto_approved','Compliance Bot', 'CB', true,  [{ label: 'MAP Status', value: 'Compliant', status: 'good' }, { label: 'Channel', value: 'eBay Allowed', status: 'good' }], '$18.99 above MAP of $13.00. eBay liquidation permitted.', now - 1000 * 60 * 175),
       category_mgmt: mkDept('approved',     'Tara B.',        'TB', false, [{ label: 'Channel Conflict', value: 'None (eBay only)', status: 'good' }, { label: 'Brand Risk', value: 'Low', status: 'good' }], 'eBay liquidation will not cannibalize premium channels.', now - 1000 * 60 * 160),
     },
-    notes: ['Finance review pending — ETA 2 hours.', 'eBay listing draft ready to publish on Finance approval.'],
+    notes: ['Finance review pending - ETA 2 hours.', 'eBay listing draft ready to publish on Finance approval.'],
   },
   {
     id: 'pcr-005',
@@ -179,11 +179,11 @@ export const INITIAL_PCRS: PriceChangeRequest[] = [
     overallStatus: 'live',
     departments: {
       marketing:     mkDept('approved',      'Jordan Lee',     'JL', false, [{ label: 'Campaign', value: 'Prime Day Prep', status: 'good' }, { label: 'Ad Spend', value: '+$600/day', status: 'neutral' }], 'Aligned with Prime Day teaser. On-platform ads scheduled.', now - 1000 * 60 * 370),
-      finance:       mkDept('approved',      'Rahul M.',       'RM', true,  [{ label: 'Gross Margin After', value: '31.4%', status: 'good' }, { label: 'Volume Lift Est.', value: '+28%', status: 'good' }, { label: 'Net Revenue Delta', value: '+$1,800/wk', status: 'good' }], 'Margin 31.4% — above floor. Volume lift more than compensates.', now - 1000 * 60 * 360),
+      finance:       mkDept('approved',      'Rahul M.',       'RM', true,  [{ label: 'Gross Margin After', value: '31.4%', status: 'good' }, { label: 'Volume Lift Est.', value: '+28%', status: 'good' }, { label: 'Net Revenue Delta', value: '+$1,800/wk', status: 'good' }], 'Margin 31.4% - above floor. Volume lift more than compensates.', now - 1000 * 60 * 360),
       supply_chain:  mkDept('approved',      'Dana K.',        'DK', false, [{ label: 'Current Stock', value: '2,200 units', status: 'good' }, { label: 'Days of Supply', value: '28 days', status: 'good' }], 'Stock 2,200 units. Sufficient for Prime Day surge.', now - 1000 * 60 * 355),
       legal:         mkDept('auto_approved', 'Compliance Bot', 'CB', true,  [{ label: 'MAP Status', value: 'Compliant', status: 'good' }], 'Compliant. Auto-approved.', now - 1000 * 60 * 375),
       category_mgmt: mkDept('approved',      'Tara B.',        'TB', false, [{ label: 'Prime Day Goal', value: 'Top 5 Footwear', status: 'good' }, { label: 'Category Impact', value: 'High', status: 'good' }], 'Prime Day positioning in footwear critical for Q3 share.', now - 1000 * 60 * 380),
     },
-    notes: ['LIVE — Price updated on Amazon at 09:14 UTC.', 'Monitoring hourly. Strong early signal: +22% CTR in first 4 hours.'],
+    notes: ['LIVE - Price updated on Amazon at 09:14 UTC.', 'Monitoring hourly. Strong early signal: +22% CTR in first 4 hours.'],
   },
 ]

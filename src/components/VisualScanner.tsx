@@ -16,7 +16,7 @@ const SCAN_STEPS: { phase: ScanPhase; label: string; icon: React.ReactNode }[] =
   { phase: 'done',       label: 'Analysis complete',                       icon: <CheckCircle size={13} />  },
 ]
 
-const DEMO_PRODUCT = PRODUCTS[1] // White T-Shirt — matches the scraped data
+const DEMO_PRODUCT = PRODUCTS[1] // White T-Shirt - matches the scraped data
 
 // First 5 rows per platform from the Excel scraped data
 const CANDIDATES = SCRAPED_PRODUCTS.slice(0, 15) // 5 AMZ + 5 TGT + 5 WMT
@@ -194,7 +194,7 @@ export default function VisualScanner() {
       setAnchorDescription(data.anchorDescription)
       setApiMode(data.mode)
     } catch {
-      // Silently fall back — show skeleton placeholders
+      // Silently fall back - show skeleton placeholders
     } finally {
       setApiLoading(false)
     }
@@ -308,7 +308,7 @@ export default function VisualScanner() {
                 <div>
                   <Upload size={24} color="var(--mid)" style={{ margin: '0 auto 8px' }} />
                   <div style={{ fontSize: 12, color: 'var(--ink2)', fontWeight: 500, marginBottom: 4 }}>Drop product image here</div>
-                  <div style={{ fontSize: 11, color: 'var(--mid)' }}>JPG, PNG, WEBP — any product photo</div>
+                  <div style={{ fontSize: 11, color: 'var(--mid)' }}>JPG, PNG, WEBP - any product photo</div>
                 </div>
               )}
               <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -419,7 +419,7 @@ export default function VisualScanner() {
             <Eye size={32} color="var(--sand)" style={{ margin: '0 auto 12px' }} />
             <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--ink2)', marginBottom: 6 }}>Upload or Select a Demo Product</div>
             <div style={{ fontSize: 12, color: 'var(--ink3)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
-              RetailLens uses AI to semantically compare product descriptions (meaning, not just keywords) and computer vision to score visual similarity — then cross-references against real scraped listings from Amazon, Walmart, and Target.
+              RetailLens uses AI to semantically compare product descriptions (meaning, not just keywords) and computer vision to score visual similarity - then cross-references against real scraped listings from Amazon, Walmart, and Target.
             </div>
           </div>
         )}

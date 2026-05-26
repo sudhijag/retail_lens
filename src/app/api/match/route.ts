@@ -68,7 +68,7 @@ async function runTextComparison(
     `Candidate ${i + 1} (ID: ${c.id}, Platform: ${c.platform}): "${c.title}"`
   ).join('\n')
 
-  const prompt = `You are a retail product matching expert. Perform a semantic meaning comparison — not keyword matching — to determine how similar each candidate product is to the anchor. Understand what the product actually IS, not just what words appear in the title.
+  const prompt = `You are a retail product matching expert. Perform a semantic meaning comparison - not keyword matching - to determine how similar each candidate product is to the anchor. Understand what the product actually IS, not just what words appear in the title.
 
 ANCHOR (${anchor.platform}): "${anchor.title}"
 
@@ -88,7 +88,7 @@ Return a JSON object with this exact structure:
   "results": [
     {
       "id": "<candidate id>",
-      "textScore": <0-100 integer, semantic meaning similarity — not keyword overlap>,
+      "textScore": <0-100 integer, semantic meaning similarity - not keyword overlap>,
       "visualScore": 0,
       "overallScore": 0,
       "reasoning": "<1-2 sentences explaining the semantic match or mismatch>",
@@ -135,17 +135,17 @@ async function runVisualComparison(
       type: 'text',
       text: `You are a visual product matching expert. Compare the ANCHOR product image (Image 1) against each CANDIDATE image and rate their visual similarity.
 
-Image 1 — ANCHOR (${anchor.platform}): "${anchor.title}"
+Image 1 - ANCHOR (${anchor.platform}): "${anchor.title}"
 
 CANDIDATES:
 ${candidateLabels}
 
 Rating scale (0–100):
-- 85–100: Nearly identical — same style, color, silhouette, construction
-- 65–84: Very similar — same product type, minor visual differences
-- 45–64: Moderately similar — same category, noticeable style differences
-- 25–44: Loosely related — same general category but clearly different
-- 0–24: Dissimilar — different product appearance
+- 85–100: Nearly identical - same style, color, silhouette, construction
+- 65–84: Very similar - same product type, minor visual differences
+- 45–64: Moderately similar - same category, noticeable style differences
+- 25–44: Loosely related - same general category but clearly different
+- 0–24: Dissimilar - different product appearance
 
 Return ONLY a JSON object (no markdown, no explanation):
 { "visualScores": { "<candidate_id>": <score>, ... } }`,

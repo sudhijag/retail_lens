@@ -89,7 +89,7 @@ const INTEL: Record<string, CategoryIntel> = {
       {
         type: 'warning',
         headline: 'Clear oval segment likely plateauing in 6–8 weeks',
-        detail: 'Your segment is at 28% velocity over 6 weeks — a classic mid-cycle growth pattern. Based on 3 prior eyewear cycles, similar segments plateau 7–9 weeks in. Extract margin now at $24.99 before discount pressure arrives.',
+        detail: 'Your segment is at 28% velocity over 6 weeks - a classic mid-cycle growth pattern. Based on 3 prior eyewear cycles, similar segments plateau 7–9 weeks in. Extract margin now at $24.99 before discount pressure arrives.',
       },
       {
         type: 'action',
@@ -146,17 +146,17 @@ const INTEL: Record<string, CategoryIntel> = {
       {
         type: 'warning',
         headline: 'Your segment (basic single tee) is in structural decline',
-        detail: 'Single-unit basic tees are down -3% weekly and the overall category is -8% q/q. You are in the segment with the least future growth. This is not a pricing problem — it is a portfolio problem.',
+        detail: 'Single-unit basic tees are down -3% weekly and the overall category is -8% q/q. You are in the segment with the least future growth. This is not a pricing problem - it is a portfolio problem.',
       },
       {
         type: 'opportunity',
-        headline: 'Multi-packs surging +41% for 7 weeks — immediate pivot target',
+        headline: 'Multi-packs surging +41% for 7 weeks - immediate pivot target',
         detail: 'A 3-pack SKU at $24–26 would compete directly with the #1 trending segment. Inventory requirement is minimal (same SKU, different packaging). Estimated uplift: +$9–11 per transaction vs current single at $14.99.',
       },
       {
         type: 'action',
         headline: 'Hold $14.99 on basic single; invest in multi-pack SKU',
-        detail: 'Do not cut price on the basic single — you have no margin to sacrifice. Hold at $14.99 to preserve cash while launching a 3-pack at $24.99 targeting the Walmart-led multi-pack surge. Run both for 4 weeks and compare velocity.',
+        detail: 'Do not cut price on the basic single - you have no margin to sacrifice. Hold at $14.99 to preserve cash while launching a 3-pack at $24.99 targeting the Walmart-led multi-pack surge. Run both for 4 weeks and compare velocity.',
       },
     ],
   },
@@ -207,12 +207,12 @@ const INTEL: Record<string, CategoryIntel> = {
     decisions: [
       {
         type: 'opportunity',
-        headline: 'Platform-sole canvas emerging at $38–52 — natural premium extension',
-        detail: 'You own the #1 position in clean low-tops. Platform-sole is at +29% with 4 weeks of runway — entering at $42–46 expands your ASP without touching your existing SKU. Zero cannibalization risk.',
+        headline: 'Platform-sole canvas emerging at $38–52 - natural premium extension',
+        detail: 'You own the #1 position in clean low-tops. Platform-sole is at +29% with 4 weeks of runway - entering at $42–46 expands your ASP without touching your existing SKU. Zero cannibalization risk.',
       },
       {
         type: 'defend',
-        headline: 'You are the category leader — protect it with controlled pricing',
+        headline: 'You are the category leader - protect it with controlled pricing',
         detail: 'At +38% velocity you have pricing power. Do not discount. The risk is margin erosion from competitors entering at $28–32. Hold $32.99. If a competitor breaks below $29, respond with a limited-time promo only.',
       },
       {
@@ -270,17 +270,17 @@ const INTEL: Record<string, CategoryIntel> = {
       {
         type: 'warning',
         headline: 'Your segment (basic drawstring) is in the #4 position and plateauing',
-        detail: 'Basic drawstring bags are losing share to utility-functional bags. You are not just losing to competitors — the category itself is moving away from your segment. The -4% category decline is concentrated in plain drawstrings.',
+        detail: 'Basic drawstring bags are losing share to utility-functional bags. You are not just losing to competitors - the category itself is moving away from your segment. The -4% category decline is concentrated in plain drawstrings.',
       },
       {
         type: 'opportunity',
-        headline: 'Gym bag with wet/dry compartment: +52% in 3 weeks — fastest mover',
-        detail: 'This is the highest-velocity segment in the category by far. Entry at $22–28 is achievable. A wet/dry gym bag is adjacent to drawstring (same manufacturing infrastructure) with a $6–8 ASP premium. The window is 3 weeks old — likely 5–9 weeks of runway remaining.',
+        headline: 'Gym bag with wet/dry compartment: +52% in 3 weeks - fastest mover',
+        detail: 'This is the highest-velocity segment in the category by far. Entry at $22–28 is achievable. A wet/dry gym bag is adjacent to drawstring (same manufacturing infrastructure) with a $6–8 ASP premium. The window is 3 weeks old - likely 5–9 weeks of runway remaining.',
       },
       {
         type: 'action',
         headline: 'Hold $25.99 drawstring; pilot gym bag SKU at $24–27',
-        detail: 'Do not discount the drawstring — you will lose margin without gaining share. Instead, use the drawstring as a cash-generating hold while piloting a gym bag SKU. If the gym bag reaches 30+ units/week in 4 weeks, shift primary inventory investment.',
+        detail: 'Do not discount the drawstring - you will lose margin without gaining share. Instead, use the drawstring as a cash-generating hold while piloting a gym bag SKU. If the gym bag reaches 30+ units/week in 4 weeks, shift primary inventory investment.',
       },
     ],
   },
@@ -342,7 +342,7 @@ const INTEL: Record<string, CategoryIntel> = {
       {
         type: 'action',
         headline: 'Hold straight-leg at $42.99; launch barrel-leg at $46–50 in 3 weeks',
-        detail: 'Straight-leg is a cash-generating hold at good margin — do not discount. Use that margin to fund a barrel-leg SKU entry. 5 weeks in, barrel-leg likely has 6–10 weeks of growth runway. Price at $47–49 to capture premium while differentiating from your existing SKU.',
+        detail: 'Straight-leg is a cash-generating hold at good margin - do not discount. Use that margin to fund a barrel-leg SKU entry. 5 weeks in, barrel-leg likely has 6–10 weeks of growth runway. Price at $47–49 to capture premium while differentiating from your existing SKU.',
       },
     ],
   },

@@ -238,7 +238,7 @@ export default function ToastSystem({ onNewToast }: Props) {
 
   return (
     <>
-      {/* Sound toggle button — fixed top-left area of toast zone */}
+      {/* Sound toggle button - fixed top-left area of toast zone */}
       <div style={{
         position: 'fixed', top: 66, right: 24, zIndex: 999,
         display: 'flex', gap: 8, alignItems: 'center',
