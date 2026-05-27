@@ -107,7 +107,7 @@ export default function RetailLensApp() {
       {/* ── CONTENT ── */}
       <div className="dashboard-content" style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
         {activeTab === 'intel'    && <PriceIntel marketScope={marketScope} />}
-        {activeTab === 'forecast' && <PriceForecast marketScope={marketScope} />}
+        {activeTab === 'forecast' && <PriceForecast />}
       </div>
     </div>
   )

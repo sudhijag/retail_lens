@@ -6,7 +6,7 @@ import {
   Tooltip, ResponsiveContainer, ReferenceLine, ReferenceDot,
   ReferenceArea,
 } from 'recharts'
-import { ChevronDown, CheckCircle, TrendingUp, TrendingDown, Minus, Brain, ChevronRight } from 'lucide-react'
+import { ChevronDown, CheckCircle, TrendingUp, TrendingDown, Minus, Brain } from 'lucide-react'
 import { PRODUCTS } from '../lib/data'
 import { getCategoryIntel } from '../lib/categoryIntelligence'
 import type { ForecastIntelResponse, TrendSignal, NextSkuPrediction } from '../app/api/forecast-intel/route'
@@ -143,7 +143,6 @@ const fmt = (n: number) => `$${n.toFixed(2)}`
 const SECTION_HEADER_STYLE = { fontSize: 17, fontWeight: 700, color: 'var(--ink)' } as const
 const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
 const FORECAST_POINTS_PER_MONTH = 8
-type MarketScope = 'National' | 'Bay Area' | 'Berkeley' | 'Walnut Creek'
 
 // ── Quality complaint data ────────────────────────────────────────────────────
 
@@ -264,15 +263,11 @@ function getSignalMeanings(title: string): string[] {
 }
 
 function TrendSignalCard({ signal }: { signal: TrendSignal }) {
-  const [expanded, setExpanded] = useState(false)
   const cfg = STRENGTH_CONFIG[signal.strength]
   const meanings = getSignalMeanings(signal.title)
 
   return (
-    <div
-      style={{ padding: '14px 16px', background: 'white', border: '1px solid var(--border)', borderRadius: 9, cursor: 'pointer' }}
-      onClick={() => setExpanded(v => !v)}
-    >
+    <div style={{ padding: '14px 16px', background: 'white', border: '1px solid var(--border)', borderRadius: 9 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
           <span style={{ fontSize: 16, color: cfg.dot }}>{TYPE_ICON[signal.type] ?? '◆'}</span>
@@ -288,36 +283,23 @@ function TrendSignalCard({ signal }: { signal: TrendSignal }) {
         </div>
       </div>
       <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.55 }}>{signal.description}</div>
-
-      {/* Expand toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 8, color: 'var(--blue)', fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>
-        <ChevronRight size={11} style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-        {expanded ? 'Less' : 'Details'}
+      <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
+        {meanings.map((m, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '6px 8px', background: cfg.bg, borderRadius: 6, borderLeft: `2px solid ${cfg.color}` }}>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: cfg.color, fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
+            <span style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.45 }}>{m}</span>
+          </div>
+        ))}
       </div>
-
-      {expanded && (
-        <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 6 }}>
-          {meanings.map((m, i) => (
-            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', padding: '6px 8px', background: cfg.bg, borderRadius: 6, borderLeft: `2px solid ${cfg.color}` }}>
-              <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: cfg.color, fontWeight: 700, flexShrink: 0 }}>{i + 1}</span>
-              <span style={{ fontSize: 11, color: 'var(--ink2)', lineHeight: 1.45 }}>{m}</span>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
 
 function NextSkuCard({ prediction }: { prediction: NextSkuPrediction }) {
-  const [expanded, setExpanded] = useState(false)
   const confColor = prediction.confidence === 'high' ? 'var(--accent2)' : prediction.confidence === 'medium' ? 'var(--amber)' : 'var(--mid)'
   const confBg    = prediction.confidence === 'high' ? 'var(--accent2-soft)' : prediction.confidence === 'medium' ? '#fef6e3' : 'var(--paper)'
   return (
-    <div
-      style={{ padding: '14px 16px', background: 'white', border: '1px solid var(--border)', borderRadius: 9, cursor: 'pointer' }}
-      onClick={() => setExpanded(v => !v)}
-    >
+    <div style={{ padding: '14px 16px', background: 'white', border: '1px solid var(--border)', borderRadius: 9 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6, gap: 8 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 3 }}>{prediction.name}</div>
@@ -331,18 +313,9 @@ function NextSkuCard({ prediction }: { prediction: NextSkuPrediction }) {
           <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--ink3)' }}>{prediction.timeToMarket}</span>
         </div>
       </div>
-
-      {/* Expand toggle */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, color: 'var(--blue)', fontSize: 10, fontFamily: "'IBM Plex Mono', monospace" }}>
-        <ChevronRight size={11} style={{ transform: expanded ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-        {expanded ? 'Less' : 'Details'}
+      <div style={{ marginTop: 8, fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6, padding: '8px 10px', background: 'var(--warm-white)', borderRadius: 6 }}>
+        {prediction.rationale}
       </div>
-
-      {expanded && (
-        <div style={{ marginTop: 8, fontSize: 11, color: 'var(--ink2)', lineHeight: 1.6, padding: '8px 10px', background: 'var(--warm-white)', borderRadius: 6 }}>
-          {prediction.rationale}
-        </div>
-      )}
     </div>
   )
 }
@@ -413,7 +386,6 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 interface PriceScenarioPanelProps {
   yourPrice: number
   matchPrices: number[]
-  marketScope: MarketScope
 }
 
 function getPricingRecommendation(yourPrice: number, matchPrices: number[], baseMonthlyUnits: number) {
@@ -454,7 +426,7 @@ function getPricingRecommendation(yourPrice: number, matchPrices: number[], base
   }
 }
 
-function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenarioPanelProps) {
+function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps) {
   const BASE_MONTHLY_UNITS = 12000
   const [sliderValue, setSliderValue] = useState(yourPrice)
   const min = Math.round(yourPrice * 0.8 * 100) / 100
@@ -490,7 +462,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenar
         </div>
       </div>
       <div style={{ padding: '20px 24px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr repeat(3, minmax(0, 1fr))', gap: 12, marginBottom: 20 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr minmax(0, 1fr)', gap: 12, marginBottom: 20 }}>
           <div style={{ padding: '14px 16px', borderRadius: 10, background: 'var(--warm-white)', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px' }}>Price Recommendation</div>
@@ -514,16 +486,10 @@ function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenar
               {recommendation.rationale}
             </div>
           </div>
-          {[
-            { label: 'Target Range', value: recommendation.range, tone: 'var(--accent)' },
-            { label: 'Comp Median', value: fmt(recommendation.median), tone: 'var(--amber)' },
-            { label: `${marketScope} Margin / 30d`, value: `${recommendation.monthlyMarginDelta >= 0 ? '+' : '-'}$${Math.abs(recommendation.monthlyMarginDelta).toLocaleString()}`, tone: recommendation.monthlyMarginDelta >= 0 ? 'var(--accent2)' : '#d92d20' },
-          ].map(item => (
-            <div key={item.label} style={{ padding: '14px 16px', borderRadius: 10, background: 'white', border: '1px solid var(--border)' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: 10 }}>{item.label}</div>
-              <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: 23, fontWeight: 800, color: item.tone, lineHeight: 1.05 }}>{item.value}</div>
-            </div>
-          ))}
+          <div style={{ padding: '14px 16px', borderRadius: 10, background: 'white', border: '1px solid var(--border)' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: 10 }}>Target Range</div>
+            <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: 23, fontWeight: 800, color: 'var(--accent)', lineHeight: 1.05 }}>{recommendation.range}</div>
+          </div>
         </div>
         {/* Slider */}
         <div style={{ marginBottom: 20 }}>
@@ -620,7 +586,7 @@ function TimePeriodSelector({ value, onChange }: { value: TimePeriod; onChange: 
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function PriceForecast({ marketScope }: { marketScope: MarketScope }) {
+export default function PriceForecast() {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
   const [forecastData,  setForecastData]  = useState<ForecastData | null>(null)
   const [intel,         setIntel]         = useState<ForecastIntelResponse | null>(null)
@@ -843,7 +809,7 @@ export default function PriceForecast({ marketScope }: { marketScope: MarketScop
 
       {/* ── Price Scenario Panel ── */}
       {fd && (
-        <PriceScenarioPanel yourPrice={selectedProduct.yourPrice} matchPrices={matchPrices} marketScope={marketScope} />
+        <PriceScenarioPanel yourPrice={selectedProduct.yourPrice} matchPrices={matchPrices} />
       )}
 
       {/* ── Loading / error state ── */}
@@ -870,15 +836,15 @@ export default function PriceForecast({ marketScope }: { marketScope: MarketScop
           <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 18 }}>
             {intel.trendSignals?.length > 0 && (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-                  {intel.trendSignals.map((s, i) => <TrendSignalCard key={i} signal={s} />)}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                  {intel.trendSignals.slice(0, 2).map((s, i) => <TrendSignalCard key={i} signal={s} />)}
                 </div>
               </div>
             )}
             {intel.nextSkuPredictions?.length > 0 && (
               <div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-                  {intel.nextSkuPredictions.map((p, i) => <NextSkuCard key={i} prediction={p} />)}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12 }}>
+                  {intel.nextSkuPredictions.slice(0, 1).map((p, i) => <NextSkuCard key={i} prediction={p} />)}
                 </div>
               </div>
             )}
