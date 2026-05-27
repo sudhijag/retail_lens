@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { Brain, ChevronDown, RefreshCw, CheckCircle, Plus, X } from 'lucide-react'
 import {
-  ResponsiveContainer,
   ScatterChart,
   Scatter,
   CartesianGrid,
@@ -740,6 +739,47 @@ function CurveTooltip({ active, payload }: { active?: boolean; payload?: Array<{
   )
 }
 
+function MeasuredChartFrame({
+  height,
+  children,
+}: {
+  height: number
+  children: (width: number) => React.ReactNode
+}) {
+  const ref = useRef<HTMLDivElement | null>(null)
+  const [width, setWidth] = useState(0)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    let frame = 0
+    const updateWidth = () => {
+      const nextWidth = Math.round(element.getBoundingClientRect().width)
+      setWidth(prev => (prev !== nextWidth ? nextWidth : prev))
+    }
+
+    updateWidth()
+
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(updateWidth)
+    })
+
+    observer.observe(element)
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }, [])
+
+  return (
+    <div ref={ref} style={{ padding: '16px 20px', minHeight: height + 32 }}>
+      {width > 0 ? children(width) : null}
+    </div>
+  )
+}
+
 export default function PriceIntel() {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
   const [enabled, setEnabled] = useState<Set<string>>(new Set(DEFAULT_ENABLED))
@@ -1117,9 +1157,9 @@ export default function PriceIntel() {
             <div style={SECTION_HEADER_STYLE}>Market Map</div>
             <div style={SECTION_SUBTITLE_STYLE}>Compare competitor price points against review volume to spot stronger value positions.</div>
           </div>
-          <div style={{ padding: '16px 20px' }}>
-            <ResponsiveContainer width="100%" height={320}>
-              <ScatterChart margin={{ top: 8, right: 20, bottom: 20, left: 8 }}>
+          <MeasuredChartFrame height={320}>
+            {width => (
+              <ScatterChart width={width - 40} height={320} margin={{ top: 8, right: 20, bottom: 20, left: 8 }}>
                 <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" />
                 <ReferenceArea y1={bubbleDomainMin} y2={bubbleBandMid} fill="rgba(26,107,60,0.11)" />
                 <ReferenceArea y1={bubbleBandMid} y2={bubbleBandHigh} fill="rgba(200,125,10,0.11)" />
@@ -1170,8 +1210,8 @@ export default function PriceIntel() {
                   fill="var(--accent)"
                 />
               </ScatterChart>
-            </ResponsiveContainer>
-          </div>
+            )}
+          </MeasuredChartFrame>
         </div>
 
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
@@ -1179,10 +1219,9 @@ export default function PriceIntel() {
             <div style={SECTION_HEADER_STYLE}>Price Distribution Curve</div>
             <div style={SECTION_SUBTITLE_STYLE}>Understand how tightly the market clusters around your SKU and where pricing density peaks.</div>
           </div>
-          <div style={{ padding: '16px 20px' }}>
-            {curveData.length >= 2 ? (
-              <ResponsiveContainer width="100%" height={320}>
-                <ComposedChart data={curveData} margin={{ top: 26, right: 20, bottom: 20, left: 8 }}>
+          <MeasuredChartFrame height={320}>
+            {width => curveData.length >= 2 ? (
+              <ComposedChart width={width - 40} height={320} data={curveData} margin={{ top: 26, right: 20, bottom: 20, left: 8 }}>
                   <defs>
                     <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="var(--amber)" stopOpacity={0.35} />
@@ -1222,9 +1261,8 @@ export default function PriceIntel() {
                     label={{ value: `Current SKU ${fmt(selectedProduct.yourPrice)}`, position: 'insideTop', offset: 10, fill: '#d92d20', fontSize: 11, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 800 }}
                   />
                 </ComposedChart>
-              </ResponsiveContainer>
             ) : null}
-          </div>
+          </MeasuredChartFrame>
         </div>
       </div>
 
