@@ -253,7 +253,7 @@ function buildFallbackPrices(basePrice: number): number[] {
 
 function getCompetitorRationale(match: RankedMatch | undefined, preview: boolean) {
   if (!match) return 'No current top-ranked match.'
-  if (preview) return 'Selected for a tight mix of price proximity, category alignment, and expected shopper overlap.'
+  if (preview) return 'Selected for price adjacency, category alignment, and likely shopper overlap.'
 
   const strongest = [
     { key: 'attribute', value: match.attrScore },
@@ -261,9 +261,9 @@ function getCompetitorRationale(match: RankedMatch | undefined, preview: boolean
     { key: 'image', value: match.imageScore },
   ].sort((a, b) => b.value - a.value)[0]?.key
 
-  if (strongest === 'image') return 'Lead match is anchored by visual silhouette, construction, and overall product look.'
-  if (strongest === 'text') return 'Lead match is anchored by title language, variant wording, and listing intent.'
-  return 'Lead match is anchored by price band, core attributes, and category positioning.'
+  if (strongest === 'image') return 'Top comp is led by silhouette, construction, and visual parity.'
+  if (strongest === 'text') return 'Top comp is led by title language, variant wording, and listing intent.'
+  return 'Top comp is led by price band, core attributes, and category position.'
 }
 
 function starPts(cx: number, cy: number, r1: number, r2: number) {
@@ -1039,7 +1039,7 @@ export default function PriceIntel({ marketScope }: { marketScope: MarketScope }
           <div style={{ height: 1, background: 'var(--border)' }} />
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
             <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--ink3)', textTransform: 'uppercase', letterSpacing: '.5px' }}>
-              Compare against
+              Competitive Set
             </div>
             {ALL_COMPETITORS.map(competitor => (
               <button
@@ -1164,10 +1164,10 @@ export default function PriceIntel({ marketScope }: { marketScope: MarketScope }
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '10px 12px', background: 'white', border: '1px solid var(--border)', borderRadius: 10 }}>
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>Suggested add: Macy&apos;s</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>Consider Macy&apos;s</span>
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.45 }}>
-                    Useful as a higher-end department-store check when you want to see whether the {marketScope.toLowerCase()} view has room above mass-market comps.
+                    Add a department-store check when you want to test whether the {marketScope.toLowerCase()} market can support a more premium price ladder.
                   </div>
                 </div>
                 <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(216,31,50,0.08)', color: '#d81f32', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -1181,8 +1181,8 @@ export default function PriceIntel({ marketScope }: { marketScope: MarketScope }
 
       <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
         <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)' }}>
-          <div style={SECTION_HEADER_STYLE}>Platform Match Grid</div>
-          <div style={SECTION_SUBTITLE_STYLE}>Review the top AI-ranked competitor matches for each retailer side by side.</div>
+          <div style={SECTION_HEADER_STYLE}>Competitive Match Grid</div>
+          <div style={SECTION_SUBTITLE_STYLE}>Review the highest-confidence competitor comps for each retailer side by side.</div>
         </div>
         <div style={{ padding: '0 20px 20px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: `116px repeat(${TOP_N}, 1fr)`, borderBottom: '1px solid var(--border)', background: 'var(--warm-white)' }}>

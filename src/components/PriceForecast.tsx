@@ -439,10 +439,10 @@ function getPricingRecommendation(yourPrice: number, matchPrices: number[], base
 
   const rationale =
     action === 'Raise'
-      ? `Current price sits below the market pocket by ${fmt(Math.abs(deltaVsMedian))}; there is room to step up without becoming the top-priced option.`
+      ? `Current price sits below the market pocket by ${fmt(Math.abs(deltaVsMedian))}; there is room to step up without taking the premium extreme.`
       : action === 'Lower'
-        ? `Current price sits above the market pocket by ${fmt(Math.abs(deltaVsMedian))}; a measured trim should tighten competitiveness without overcorrecting.`
-        : 'Current price is already inside the core market pocket; hold and watch review velocity plus competitor moves.'
+        ? `Current price sits above the market pocket by ${fmt(Math.abs(deltaVsMedian))}; a measured trim should tighten conversion without overcorrecting.`
+        : 'Current price is already inside the core market pocket; hold and monitor share, reviews, and competitor movement.'
 
   return {
     action,
@@ -493,7 +493,7 @@ function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenar
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr repeat(3, minmax(0, 1fr))', gap: 12, marginBottom: 20 }}>
           <div style={{ padding: '14px 16px', borderRadius: 10, background: 'var(--warm-white)', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px' }}>Recommended Move</div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px' }}>Price Recommendation</div>
               <span style={{
                 padding: '4px 8px',
                 borderRadius: 999,
@@ -515,9 +515,9 @@ function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenar
             </div>
           </div>
           {[
-            { label: 'Suggested Range', value: recommendation.range, tone: 'var(--accent)' },
-            { label: 'Market Median', value: fmt(recommendation.median), tone: 'var(--amber)' },
-            { label: `${marketScope} Impact / 30d`, value: `${recommendation.monthlyMarginDelta >= 0 ? '+' : '-'}$${Math.abs(recommendation.monthlyMarginDelta).toLocaleString()}`, tone: recommendation.monthlyMarginDelta >= 0 ? 'var(--accent2)' : '#d92d20' },
+            { label: 'Target Range', value: recommendation.range, tone: 'var(--accent)' },
+            { label: 'Comp Median', value: fmt(recommendation.median), tone: 'var(--amber)' },
+            { label: `${marketScope} Margin / 30d`, value: `${recommendation.monthlyMarginDelta >= 0 ? '+' : '-'}$${Math.abs(recommendation.monthlyMarginDelta).toLocaleString()}`, tone: recommendation.monthlyMarginDelta >= 0 ? 'var(--accent2)' : '#d92d20' },
           ].map(item => (
             <div key={item.label} style={{ padding: '14px 16px', borderRadius: 10, background: 'white', border: '1px solid var(--border)' }}>
               <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: 10 }}>{item.label}</div>
@@ -850,7 +850,7 @@ export default function PriceForecast({ marketScope }: { marketScope: MarketScop
       {loading && (
         <div style={{ padding: '24px 20px', background: 'white', border: '1px solid var(--border)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
           <Brain size={18} color="var(--blue)" style={{ animation: 'blink 2s ease-in-out infinite' }} />
-          <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>Refreshing…</div>
+          <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink)' }}>Refreshing market read…</div>
         </div>
       )}
 
@@ -864,8 +864,8 @@ export default function PriceForecast({ marketScope }: { marketScope: MarketScop
       {intel && (
         <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '13px 18px', borderBottom: '1px solid var(--border)' }}>
-            <div style={SECTION_HEADER_STYLE}>Insights</div>
-            <div style={SECTION_SUBTITLE_STYLE}>Review trend signals, next-SKU opportunities, and customer feedback patterns.</div>
+            <div style={SECTION_HEADER_STYLE}>Forward Signals</div>
+            <div style={SECTION_SUBTITLE_STYLE}>Review pricing signals, next-SKU opportunities, and customer feedback patterns.</div>
           </div>
           <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: 18 }}>
             {intel.trendSignals?.length > 0 && (
