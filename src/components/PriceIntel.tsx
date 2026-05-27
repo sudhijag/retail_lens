@@ -21,6 +21,7 @@ import { getScrapedProductsForSku, PLATFORM_COLORS, PLATFORM_NAMES } from '../li
 import type { ScrapedListing } from '../lib/scrapedData'
 import type { MatchProductsRequest, MatchProductResult } from '../app/api/match-products/route'
 import type { Product } from '../lib/types'
+import { trackEvent } from '../lib/analytics'
 
 interface Competitor {
   id: string
@@ -77,6 +78,7 @@ const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)'
 
 const tok = (s: string) => s.toLowerCase().split(/\W+/).filter(w => w.length > 3 && !STOP.has(w))
 const fmt = (n: number) => `$${n.toFixed(2)}`
+type MarketScope = 'National' | 'Bay Area' | 'Berkeley' | 'Walnut Creek'
 
 // ── Assortment coverage data ──────────────────────────────────────────────────
 
@@ -247,6 +249,21 @@ function buildFallbackPrices(basePrice: number): number[] {
     basePrice * 1.08,
     basePrice * 1.13,
   ].map(price => Math.round(price * 100) / 100)
+}
+
+function getCompetitorRationale(match: RankedMatch | undefined, preview: boolean) {
+  if (!match) return 'No current top-ranked match.'
+  if (preview) return 'Selected for a tight mix of price proximity, category alignment, and expected shopper overlap.'
+
+  const strongest = [
+    { key: 'attribute', value: match.attrScore },
+    { key: 'text', value: match.textScore },
+    { key: 'image', value: match.imageScore },
+  ].sort((a, b) => b.value - a.value)[0]?.key
+
+  if (strongest === 'image') return 'Lead match is anchored by visual silhouette, construction, and overall product look.'
+  if (strongest === 'text') return 'Lead match is anchored by title language, variant wording, and listing intent.'
+  return 'Lead match is anchored by price band, core attributes, and category positioning.'
 }
 
 function starPts(cx: number, cy: number, r1: number, r2: number) {
@@ -479,7 +496,6 @@ function MatchCell({
 
   const breakdown = getTableBreakdown(match, preview, rank)
   const tone = getConfidenceTone(breakdown.overall, preview)
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ padding: '4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -529,6 +545,24 @@ function MatchCell({
         }}>
           {match.product.title}
         </div>
+        {rank === 1 && (
+          <div style={{ marginBottom: 4 }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              padding: '3px 7px',
+              borderRadius: 999,
+              background: 'var(--accent2-soft)',
+              color: 'var(--accent2)',
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: 9,
+              fontWeight: 700,
+              letterSpacing: '.2px',
+            }}>
+              Best Match
+            </span>
+          </div>
+        )}
       </div>
       <div style={{ padding: '4px 8px' }}>
         <span style={{ fontFamily: "'Playfair Display', serif", fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>
@@ -780,7 +814,7 @@ function MeasuredChartFrame({
   )
 }
 
-export default function PriceIntel() {
+export default function PriceIntel({ marketScope }: { marketScope: MarketScope }) {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
   const [enabled, setEnabled] = useState<Set<string>>(new Set(DEFAULT_ENABLED))
   const [addedMarketplaceIds, setAddedMarketplaceIds] = useState<string[]>([])
@@ -791,6 +825,7 @@ export default function PriceIntel() {
   const [aiMode, setAiMode] = useState<string | null>(null)
   const [selectedMatchIds, setSelectedMatchIds] = useState<Set<string>>(new Set())
   const [selectionTouched, setSelectionTouched] = useState(false)
+  const hasTrackedSkuChange = useRef(false)
 
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
   const scrapedProducts = useMemo(() => getScrapedProductsForSku(selectedSkuId), [selectedSkuId])
@@ -820,6 +855,17 @@ export default function PriceIntel() {
     setSelectionTouched(false)
   }, [])
 
+  useEffect(() => {
+    if (!hasTrackedSkuChange.current) {
+      hasTrackedSkuChange.current = true
+      return
+    }
+    trackEvent('sku_selected', {
+      surface: 'price_intelligence',
+      sku_id: selectedSkuId,
+    })
+  }, [selectedSkuId])
+
   const toggleCompetitor = useCallback((id: string) => {
     setEnabled(prev => {
       const next = new Set(prev)
@@ -839,6 +885,12 @@ export default function PriceIntel() {
   }, [])
 
   const runAiMatching = useCallback(async () => {
+    trackEvent('analysis_run', {
+      surface: 'price_intelligence',
+      analysis_type: 'ai_match',
+      sku_id: selectedProduct.id,
+      competitor_count: activeCompetitors.length,
+    })
     setIsRunningAi(true)
     setAiMode(null)
 
@@ -1079,6 +1131,51 @@ export default function PriceIntel() {
               </button>
             </div>
           </div>
+          <details style={{ marginTop: -4, background: 'rgba(248,250,252,0.88)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 14px' }}>
+            <summary style={{ cursor: 'pointer', listStyle: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                <ChevronDown size={14} color="var(--ink3)" />
+                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 10, color: 'var(--accent2)', textTransform: 'uppercase', letterSpacing: '.5px', fontWeight: 700 }}>
+                  Match Logic
+                </span>
+                <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(5,150,105,0.12)', color: 'var(--accent2)', fontSize: 10, fontWeight: 700 }}>
+                  {activeCompetitors.length} defaults active
+                </span>
+              </div>
+              <span style={{ fontSize: 10, color: 'var(--mid)', fontWeight: 600 }}>
+                View details
+              </span>
+            </summary>
+            <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+              {activeCompetitors.map(competitor => {
+                const topMatch = visiblePlatformMatches[competitor.id]?.[0]
+                return (
+                  <div key={competitor.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 12px', background: 'white', border: '1px solid var(--border)', borderRadius: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 140 }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: competitor.color, flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: 700, color: competitor.color }}>{competitor.name}</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.45, flex: 1 }}>
+                      {getCompetitorRationale(topMatch, !hasAiScores)}
+                    </div>
+                  </div>
+                )
+              })}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: '10px 12px', background: 'white', border: '1px solid var(--border)', borderRadius: 10 }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--ink)' }}>Suggested add: Macy&apos;s</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.45 }}>
+                    Useful as a higher-end department-store check when you want to see whether the {marketScope.toLowerCase()} view has room above mass-market comps.
+                  </div>
+                </div>
+                <span style={{ padding: '3px 8px', borderRadius: 999, background: 'rgba(216,31,50,0.08)', color: '#d81f32', fontSize: 10, fontWeight: 700, whiteSpace: 'nowrap' }}>
+                  Optional
+                </span>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
 

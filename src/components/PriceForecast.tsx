@@ -11,6 +11,7 @@ import { PRODUCTS } from '../lib/data'
 import { getCategoryIntel } from '../lib/categoryIntelligence'
 import type { ForecastIntelResponse, TrendSignal, NextSkuPrediction } from '../app/api/forecast-intel/route'
 import type { Product } from '../lib/types'
+import { trackEvent } from '../lib/analytics'
 
 // ── Forecast data generation ───────────────────────────────────────────────────
 
@@ -139,9 +140,10 @@ function generateForecast(product: Product): ForecastData {
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
 const fmt = (n: number) => `$${n.toFixed(2)}`
-const SECTION_HEADER_STYLE = { fontSize: 12, fontWeight: 600, color: 'var(--ink)' } as const
+const SECTION_HEADER_STYLE = { fontSize: 17, fontWeight: 700, color: 'var(--ink)' } as const
 const SECTION_SUBTITLE_STYLE = { marginTop: 4, fontSize: 12, color: 'var(--mid)', lineHeight: 1.45 } as const
 const FORECAST_POINTS_PER_MONTH = 8
+type MarketScope = 'National' | 'Bay Area' | 'Berkeley' | 'Walnut Creek'
 
 // ── Quality complaint data ────────────────────────────────────────────────────
 
@@ -411,9 +413,48 @@ function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: 
 interface PriceScenarioPanelProps {
   yourPrice: number
   matchPrices: number[]
+  marketScope: MarketScope
 }
 
-function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps) {
+function getPricingRecommendation(yourPrice: number, matchPrices: number[], baseMonthlyUnits: number) {
+  const sorted = [...matchPrices, yourPrice].sort((a, b) => a - b)
+  const median = sorted[Math.floor(sorted.length / 2)]
+  const deltaVsMedian = yourPrice - median
+
+  let action: 'Raise' | 'Lower' | 'Hold' = 'Hold'
+  let target = yourPrice
+
+  if (yourPrice < median * 0.92) {
+    action = 'Raise'
+    target = Math.min(median * 0.98, yourPrice + Math.max(1.5, (median - yourPrice) * 0.65))
+  } else if (yourPrice > median * 1.08) {
+    action = 'Lower'
+    target = Math.max(median * 1.02, yourPrice - Math.max(1.5, (yourPrice - median) * 0.55))
+  }
+
+  const roundedTarget = Math.round(target * 100) / 100
+  const lowRange = Math.round((roundedTarget - 0.5) * 100) / 100
+  const highRange = Math.round((roundedTarget + 0.5) * 100) / 100
+  const monthlyMarginDelta = Math.round((roundedTarget - yourPrice) * baseMonthlyUnits)
+
+  const rationale =
+    action === 'Raise'
+      ? `Current price sits below the market pocket by ${fmt(Math.abs(deltaVsMedian))}; there is room to step up without becoming the top-priced option.`
+      : action === 'Lower'
+        ? `Current price sits above the market pocket by ${fmt(Math.abs(deltaVsMedian))}; a measured trim should tighten competitiveness without overcorrecting.`
+        : 'Current price is already inside the core market pocket; hold and watch review velocity plus competitor moves.'
+
+  return {
+    action,
+    target: roundedTarget,
+    range: `${fmt(lowRange)}-${fmt(highRange)}`,
+    median,
+    monthlyMarginDelta,
+    rationale,
+  }
+}
+
+function PriceScenarioPanel({ yourPrice, matchPrices, marketScope }: PriceScenarioPanelProps) {
   const BASE_MONTHLY_UNITS = 12000
   const [sliderValue, setSliderValue] = useState(yourPrice)
   const min = Math.round(yourPrice * 0.8 * 100) / 100
@@ -438,16 +479,52 @@ function PriceScenarioPanel({ yourPrice, matchPrices }: PriceScenarioPanelProps)
   const diffColor = diff > 0 ? 'var(--accent)' : diff < 0 ? 'var(--accent2)' : 'var(--ink3)'
   const volColor  = volumeImpact >= 0 ? 'var(--accent2)' : 'var(--accent)'
   const revColor  = monthlyRevenueDelta >= 0 ? 'var(--accent2)' : 'var(--accent)'
+  const recommendation = getPricingRecommendation(yourPrice, matchPrices, BASE_MONTHLY_UNITS)
 
   return (
     <div style={{ background: 'white', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden' }}>
       <div style={{ padding: '13px 20px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 8 }}>
         <div>
           <div style={SECTION_HEADER_STYLE}>Sensitivity</div>
-          <div style={SECTION_SUBTITLE_STYLE}>Test pricing scenarios to estimate volume, revenue, and competitive rank shifts.</div>
+          <div style={SECTION_SUBTITLE_STYLE}>Stress-test price moves against demand, revenue, and rank in the selected market view.</div>
         </div>
       </div>
       <div style={{ padding: '20px 24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1.2fr repeat(3, minmax(0, 1fr))', gap: 12, marginBottom: 20 }}>
+          <div style={{ padding: '14px 16px', borderRadius: 10, background: 'var(--warm-white)', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px' }}>Recommended Move</div>
+              <span style={{
+                padding: '4px 8px',
+                borderRadius: 999,
+                background: recommendation.action === 'Raise' ? 'rgba(5,150,105,0.12)' : recommendation.action === 'Lower' ? 'rgba(217,45,32,0.1)' : 'rgba(37,99,235,0.1)',
+                color: recommendation.action === 'Raise' ? 'var(--accent2)' : recommendation.action === 'Lower' ? '#d92d20' : 'var(--accent)',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: 9,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+              }}>
+                {recommendation.action}
+              </span>
+            </div>
+            <div style={{ fontSize: 14, color: 'var(--ink)', fontWeight: 700, marginBottom: 6 }}>
+              Target {fmt(recommendation.target)}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--ink3)', lineHeight: 1.55 }}>
+              {recommendation.rationale}
+            </div>
+          </div>
+          {[
+            { label: 'Suggested Range', value: recommendation.range, tone: 'var(--accent)' },
+            { label: 'Market Median', value: fmt(recommendation.median), tone: 'var(--amber)' },
+            { label: `${marketScope} Impact / 30d`, value: `${recommendation.monthlyMarginDelta >= 0 ? '+' : '-'}$${Math.abs(recommendation.monthlyMarginDelta).toLocaleString()}`, tone: recommendation.monthlyMarginDelta >= 0 ? 'var(--accent2)' : '#d92d20' },
+          ].map(item => (
+            <div key={item.label} style={{ padding: '14px 16px', borderRadius: 10, background: 'white', border: '1px solid var(--border)' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 9, color: 'var(--mid)', textTransform: 'uppercase', letterSpacing: '.8px', marginBottom: 10 }}>{item.label}</div>
+              <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: 23, fontWeight: 800, color: item.tone, lineHeight: 1.05 }}>{item.value}</div>
+            </div>
+          ))}
+        </div>
         {/* Slider */}
         <div style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -543,7 +620,7 @@ function TimePeriodSelector({ value, onChange }: { value: TimePeriod; onChange: 
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function PriceForecast() {
+export default function PriceForecast({ marketScope }: { marketScope: MarketScope }) {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
   const [forecastData,  setForecastData]  = useState<ForecastData | null>(null)
   const [intel,         setIntel]         = useState<ForecastIntelResponse | null>(null)
@@ -551,10 +628,41 @@ export default function PriceForecast() {
   const [intelError,    setIntelError]    = useState<string | null>(null)
   const [timePeriod,    setTimePeriod]    = useState<TimePeriod>('12M')
   const forecastCardsRef = useRef<HTMLDivElement>(null)
+  const hasTrackedSkuChange = useRef(false)
+  const hasTrackedPeriodChange = useRef(false)
 
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
 
+  useEffect(() => {
+    if (!hasTrackedSkuChange.current) {
+      hasTrackedSkuChange.current = true
+      return
+    }
+    trackEvent('sku_selected', {
+      surface: 'predictive_analytics',
+      sku_id: selectedSkuId,
+    })
+  }, [selectedSkuId])
+
+  useEffect(() => {
+    if (!hasTrackedPeriodChange.current) {
+      hasTrackedPeriodChange.current = true
+      return
+    }
+    trackEvent('forecast_horizon_selected', {
+      surface: 'predictive_analytics',
+      period: timePeriod,
+      sku_id: selectedSkuId,
+    })
+  }, [selectedSkuId, timePeriod])
+
   const loadIntel = useCallback(async (product: Product) => {
+    trackEvent('analysis_run', {
+      surface: 'predictive_analytics',
+      analysis_type: 'forecast_intel',
+      sku_id: product.id,
+      period: timePeriod,
+    })
     setForecastData(generateForecast(product))
     setLoading(true); setIntel(null); setIntelError(null)
     try {
@@ -577,7 +685,7 @@ export default function PriceForecast() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [timePeriod])
 
   useEffect(() => {
     void Promise.resolve().then(() => loadIntel(selectedProduct))
@@ -735,7 +843,7 @@ export default function PriceForecast() {
 
       {/* ── Price Scenario Panel ── */}
       {fd && (
-        <PriceScenarioPanel yourPrice={selectedProduct.yourPrice} matchPrices={matchPrices} />
+        <PriceScenarioPanel yourPrice={selectedProduct.yourPrice} matchPrices={matchPrices} marketScope={marketScope} />
       )}
 
       {/* ── Loading / error state ── */}

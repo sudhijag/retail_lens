@@ -7,6 +7,7 @@ import {
 import { ChevronDown, CheckCircle, Truck, Zap, Clock } from 'lucide-react'
 import { PRODUCTS } from '../lib/data'
 import type { Product } from '../lib/types'
+import { trackEvent } from '../lib/analytics'
 
 const fmt  = (n: number) => `$${n.toFixed(2)}`
 const fmtK = (n: number) => `$${(n / 1000).toFixed(1)}K`
@@ -377,6 +378,7 @@ const BAR_COLORS = ['#059669', '#10b981', '#2dd4bf']
 
 export default function DeliverySpeed() {
   const [selectedSkuId, setSelectedSkuId] = useState(PRODUCTS[0].id)
+  const hasTrackedSkuChange = useRef(false)
   const selectedProduct = PRODUCTS.find(p => p.id === selectedSkuId)!
   const elasticity = getElasticity(selectedProduct)
   const actions    = getActions(selectedProduct)
@@ -387,6 +389,17 @@ export default function DeliverySpeed() {
   )
   const gapHrs  = youRow.standard.hours! - fastestHrs
   const gapDays = Math.round(gapHrs / 24)
+
+  useEffect(() => {
+    if (!hasTrackedSkuChange.current) {
+      hasTrackedSkuChange.current = true
+      return
+    }
+    trackEvent('sku_selected', {
+      surface: 'delivery_speed',
+      sku_id: selectedSkuId,
+    })
+  }, [selectedSkuId])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>

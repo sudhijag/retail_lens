@@ -1,24 +1,30 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { BarChart2, Brain, Truck } from 'lucide-react'
+import { BarChart2, Brain } from 'lucide-react'
+import { trackEvent } from '../lib/analytics'
 
 const PriceIntel    = dynamic(() => import('../components/PriceIntel'),    { ssr: false })
 const PriceForecast = dynamic(() => import('../components/PriceForecast'), { ssr: false })
-const DeliverySpeed = dynamic(() => import('../components/DeliverySpeed'), { ssr: false })
 
-type Tab = 'intel' | 'forecast' | 'delivery'
+type Tab = 'intel' | 'forecast'
+type MarketScope = 'National' | 'Bay Area' | 'Berkeley' | 'Walnut Creek'
+const MARKET_SCOPES: MarketScope[] = ['National', 'Bay Area', 'Berkeley', 'Walnut Creek']
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'intel',    label: 'Price Intelligence',          icon: <BarChart2 size={13} /> },
   { id: 'forecast', label: 'Predictive Analytics',        icon: <Brain size={13} />     },
-  { id: 'delivery', label: 'Delivery Speed Intelligence', icon: <Truck size={13} />     },
 ]
 
 // ── App shell ─────────────────────────────────────────────────────────────────
 
 export default function RetailLensApp() {
   const [activeTab, setActiveTab] = useState<Tab>('intel')
+  const [marketScope, setMarketScope] = useState<MarketScope>('National')
+
+  useEffect(() => {
+    trackEvent('tab_viewed', { tab: activeTab })
+  }, [activeTab])
 
   return (
     <div className="dashboard-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
@@ -62,23 +68,46 @@ export default function RetailLensApp() {
           ))}
         </div>
 
-        {/* Right: live badge + sync */}
+        {/* Right: live badge + market */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--mid)' }}>
             <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--accent2)' }} className="blink" />
             LIVE
           </div>
-          <div style={{ background: 'rgba(15,23,42,0.04)', border: '1px solid var(--border)', borderRadius: 999, padding: '8px 14px', fontSize: 12, color: 'var(--ink)', fontWeight: 600 }}>
-            TrendRetail Enterprise
+          <div style={{ position: 'relative' }}>
+            <select
+              value={marketScope}
+              onChange={e => setMarketScope(e.target.value as MarketScope)}
+              style={{
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                MozAppearance: 'none',
+                background: 'rgba(15,23,42,0.04)',
+                border: '1px solid var(--border)',
+                borderRadius: 999,
+                padding: '8px 34px 8px 14px',
+                fontSize: 12,
+                color: 'var(--ink)',
+                fontWeight: 600,
+                fontFamily: "'Inter', sans-serif",
+                cursor: 'pointer',
+              }}
+            >
+              {MARKET_SCOPES.map(scope => (
+                <option key={scope} value={scope}>{scope}</option>
+              ))}
+            </select>
+            <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', fontSize: 10, color: 'var(--mid)' }}>
+              ▼
+            </div>
           </div>
         </div>
       </div>
 
       {/* ── CONTENT ── */}
       <div className="dashboard-content" style={{ flex: 1, overflowY: 'auto', padding: 28 }}>
-        {activeTab === 'intel'    && <PriceIntel />}
-        {activeTab === 'forecast' && <PriceForecast />}
-        {activeTab === 'delivery' && <DeliverySpeed />}
+        {activeTab === 'intel'    && <PriceIntel marketScope={marketScope} />}
+        {activeTab === 'forecast' && <PriceForecast marketScope={marketScope} />}
       </div>
     </div>
   )
